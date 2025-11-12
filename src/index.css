@@ -2,75 +2,158 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Clean Professional Design System */
 :root {
   /* Typography */
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Roboto',
+    'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'SF Mono', 'Monaco', 'Consolas', monospace;
+
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-base: 14px;
+  --text-md: 15px;
+  --text-lg: 16px;
+  --text-xl: 18px;
+  --text-2xl: 20px;
+  --text-3xl: 24px;
+  --text-4xl: 32px;
+
+  --font-regular: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.6;
+  --leading-loose: 1.8;
+
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.025em;
+
+  /* Primary Palette */
+  --primary-50: #eff6ff;
+  --primary-100: #dbeafe;
+  --primary-500: #3b82f6;
+  --primary-600: #2563eb;
+  --primary-700: #1d4ed8;
+  --primary-900: #1e3a8a;
+
+  --neuro-purple: #8b5cf6;
+  --neuro-teal: #14b8a6;
+  --neuro-blue: #3b82f6;
+
+  --delta: #8b5cf6;
+  --theta: #3b82f6;
+  --alpha: #14b8a6;
+  --beta: #10b981;
+  --gamma: #f59e0b;
+
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #3b82f6;
+
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #f3f4f6;
+
+  --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.08);
+  --shadow-md: 0 8px 20px -8px rgba(15, 23, 42, 0.2);
+  --shadow-lg: 0 14px 35px -12px rgba(37, 99, 235, 0.25);
+  --shadow-xl: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+  --shadow-colored: 0 18px 45px -12px rgba(59, 130, 246, 0.35);
+
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
 }
 
-/* Base Styles */
+* {
+  font-family: var(--font-sans);
+}
+
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  font-size: 14px;
-  line-height: 1.6;
-  color: #1f2937;
-  background-color: #f9fafb;
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  color: var(--gray-800);
+  background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.08), transparent 45%),
+    radial-gradient(circle at bottom right, rgba(139, 92, 246, 0.08), transparent 50%),
+    var(--gray-50);
 }
 
-/* Typography */
-h1 {
-  font-size: 1.5rem;
-  line-height: 1.3;
-  font-weight: 600;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-tight);
 }
 
-h2 {
-  font-size: 1.25rem;
-  line-height: 1.3;
-  font-weight: 600;
+button,
+a,
+input,
+select,
+textarea {
+  transition: all var(--transition-base);
 }
 
-h3 {
-  font-size: 1rem;
-  line-height: 1.4;
-  font-weight: 600;
-}
-
-/* Smooth transitions for interactive elements */
-button, a, input, select, textarea {
-  transition: all 150ms ease-in-out;
-}
-
-/* Focus styles for accessibility */
 button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
+  outline: 2px solid var(--primary-500);
+  outline-offset: 3px;
 }
 
-/* Custom scrollbar */
+::selection {
+  background: rgba(59, 130, 246, 0.18);
+  color: var(--gray-900);
+}
+
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f3f4f6;
+  background: rgba(148, 163, 184, 0.15);
+  border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 4px;
+  background: rgba(59, 130, 246, 0.45);
+  border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: rgba(37, 99, 235, 0.7);
 }
