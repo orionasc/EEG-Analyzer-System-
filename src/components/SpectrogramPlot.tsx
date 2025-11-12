@@ -60,12 +60,9 @@ export const SpectrogramPlot: React.FC<SpectrogramPlotProps> = ({ analysis }) =>
   }));
 
   return (
-    <div className="w-full bg-white rounded-xl shadow-md p-6 border border-gray-100">
-      <div className="flex items-center mb-4">
-        <div className="w-1 h-6 bg-gradient-to-b from-teal-500 to-cyan-500 rounded-full mr-3"></div>
-        <h3 className="text-lg font-semibold text-gray-800">Power Spectrum</h3>
-      </div>
-      <div className="bg-gray-50/50 rounded-lg p-1">
+    <div className="w-full bg-white rounded-lg border border-gray-200 p-6">
+      <h3 className="text-base font-semibold text-gray-900 mb-4">Power Spectrum</h3>
+      <div>
         <Plot
           data={[trace]}
           layout={{

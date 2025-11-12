@@ -25,12 +25,9 @@ export const FrequencyBandChart: React.FC<FrequencyBandChartProps> = ({ bands })
   };
 
   return (
-    <div className="w-full bg-white rounded-xl shadow-md p-6 border border-gray-100">
-      <div className="flex items-center mb-4">
-        <div className="w-1 h-6 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full mr-3"></div>
-        <h3 className="text-lg font-semibold text-gray-800">Frequency Band Distribution</h3>
-      </div>
-      <div className="bg-gray-50/50 rounded-lg p-1 mb-4">
+    <div className="w-full bg-white rounded-lg border border-gray-200 p-6">
+      <h3 className="text-base font-semibold text-gray-900 mb-4">Frequency Band Distribution</h3>
+      <div className="mb-4">
         <Plot
           data={[trace]}
           layout={{
@@ -69,20 +66,20 @@ export const FrequencyBandChart: React.FC<FrequencyBandChartProps> = ({ bands })
           className="w-full"
         />
       </div>
-      <div className="grid grid-cols-1 gap-2.5">
+      <div className="grid grid-cols-1 gap-2">
         {bandData.map((band, idx) => (
-          <div key={idx} className="flex items-center bg-gray-50/70 rounded-lg p-3 border border-gray-200/50 hover:border-gray-300 hover:bg-gray-100/50 transition-all">
+          <div key={idx} className="flex items-center bg-gray-50 rounded p-2.5 border border-gray-200">
             <div
-              className="w-4 h-4 rounded-md flex-shrink-0 shadow-sm"
+              className="w-3 h-3 rounded flex-shrink-0"
               style={{
                 backgroundColor: ['#9C27B0', '#673AB7', '#2196F3', '#FF9800', '#F44336'][idx]
               }}
             />
             <div className="ml-3 flex-1 min-w-0">
-              <span className="font-semibold text-sm text-gray-800">{band.name}</span>
+              <span className="font-medium text-sm text-gray-900">{band.name}</span>
               <span className="text-xs text-gray-500 ml-2">({band.range[0]}-{band.range[1]} Hz)</span>
             </div>
-            <span className="text-xs text-gray-600 bg-white px-2 py-1 rounded-md border border-gray-200">
+            <span className="text-xs text-gray-600 font-medium">
               {band.power.toFixed(4)}
             </span>
           </div>
