@@ -1,100 +1,185 @@
-import { useState } from 'react';
-import { getSampleDatasets } from '../utils/dataGenerator';
+import { useMemo, useState } from 'react';
+import { getSampleDatasets, parseCSVData, validateEEGData } from '../utils/dataGenerator';
 import type { EEGData } from '../types';
 
 interface ControlPanelProps {
   onLoadSample: (data: EEGData) => void;
   onAnalyze: () => void;
+  onDataUpload: (data: EEGData) => void;
   isAnalyzing: boolean;
   apiKey: string;
-  onApiKeyChange: (key: string) => void;
+  hasData: boolean;
 }
+
+const sampleIcons = ['🧘', '🎯', '😴', '💤'];
 
 export const ControlPanel: React.FC<ControlPanelProps> = ({
   onLoadSample,
   onAnalyze,
+  onDataUpload,
   isAnalyzing,
   apiKey,
-  onApiKeyChange
+  hasData
 }) => {
-  const [showApiKey, setShowApiKey] = useState(false);
-  const samples = getSampleDatasets();
+  const samples = useMemo(() => getSampleDatasets(), []);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleFile = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      const parsed = parseCSVData(text);
+      if (parsed) {
+        const validation = validateEEGData(parsed);
+        if (validation.valid) {
+          onDataUpload(parsed);
+        } else {
+          alert('Invalid EEG data:\n' + validation.errors.join('\n'));
+        }
+      } else {
+        alert('Failed to parse CSV file. Please check the format.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLLabelElement>) => {
+    event.preventDefault();
+    setIsDragging(false);
+    const file = event.dataTransfer.files?.[0];
+    if (file) {
+      handleFile(file);
+    }
+  };
 
   return (
-    <div className="w-full bg-white rounded-lg border border-gray-200 p-6">
-      <h3 className="text-base font-semibold text-gray-900 mb-5">Control Panel</h3>
+    <div className="rounded-3xl border border-white/40 bg-white/75 backdrop-blur shadow-[var(--shadow-md)] p-6 sm:p-8">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <p className="text-xs uppercase tracking-[0.35em] text-gray-400">Dataset Control</p>
+          <h3 className="text-xl font-semibold text-gray-900">Curate Your EEG Session</h3>
+        </div>
+        <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-lg">🎛️</div>
+      </div>
 
-      {/* Sample Data Selection */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-3">
-          Load Sample Dataset
-        </label>
-        <div className="space-y-2">
+      <div className="space-y-4">
+        <p className="text-xs font-medium uppercase text-gray-500 tracking-wide">Load Sample Dataset</p>
+        <div className="grid grid-cols-1 gap-3">
           {samples.map((sample, idx) => (
             <button
-              key={idx}
+              key={sample.name}
               onClick={() => onLoadSample(sample.data)}
-              className="w-full text-left p-3 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+              className="group relative flex items-center gap-4 rounded-2xl border border-gray-100 bg-white/90 px-4 py-3 text-left shadow-sm transition hover:-translate-y-1 hover:border-blue-300 hover:shadow-[var(--shadow-md)]"
             >
-              <div className="font-medium text-sm text-gray-800">
-                {sample.name}
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-lg">{sampleIcons[idx] ?? '🧠'}</div>
+              <div>
+                <p className="text-sm font-semibold text-gray-900">{sample.name}</p>
+                <p className="text-xs text-gray-500 leading-relaxed">{sample.description}</p>
               </div>
-              <div className="text-xs text-gray-500 mt-0.5">{sample.description}</div>
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-base text-blue-400 opacity-0 transition group-hover:opacity-100">
+                ↗
+              </span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* API Key Input */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Claude API Key <span className="text-xs font-normal text-gray-500">(Optional)</span>
-        </label>
-        <div className="relative">
+      <div className="flex items-center gap-3 py-4">
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+        <span className="text-[11px] font-medium uppercase tracking-[0.4em] text-gray-400">or</span>
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+      </div>
+
+      <div className="space-y-3">
+        <p className="text-xs font-medium uppercase text-gray-500 tracking-wide">Upload CSV</p>
+        <label
+          htmlFor="sidebar-upload"
+          className={`relative flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-6 py-8 text-center transition ${
+            isDragging
+              ? 'border-blue-400 bg-blue-50/60 text-blue-600 scale-[1.02]'
+              : 'border-gray-200 bg-gray-50/60 text-gray-500 hover:border-blue-300 hover:bg-blue-50/40'
+          }`}
+          onDragOver={(event) => {
+            event.preventDefault();
+            setIsDragging(true);
+          }}
+          onDragLeave={(event) => {
+            event.preventDefault();
+            setIsDragging(false);
+          }}
+          onDrop={handleDrop}
+        >
           <input
-            type={showApiKey ? 'text' : 'password'}
-            value={apiKey}
-            onChange={(e) => onApiKeyChange(e.target.value)}
-            placeholder="sk-ant-..."
-            className="w-full px-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+            id="sidebar-upload"
+            type="file"
+            accept=".csv"
+            className="hidden"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) {
+                handleFile(file);
+              }
+            }}
           />
-          <button
-            onClick={() => setShowApiKey(!showApiKey)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-gray-100"
-            title={showApiKey ? 'Hide API key' : 'Show API key'}
-          >
-            {showApiKey ? (
-              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-              </svg>
-            ) : (
-              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
-            )}
-          </button>
-        </div>
-        <p className="text-xs text-gray-500 mt-2">
-          {apiKey ? '✓ Using Claude API for AI analysis' : 'Using mock AI analysis'}
+          <div className="text-2xl">📁</div>
+          <div>
+            <p className="text-sm font-semibold text-gray-700">Drop CSV file here</p>
+            <p className="text-xs text-gray-500">or click to browse</p>
+          </div>
+          <p className="text-[11px] text-gray-400">Expected: Time,Ch1,Ch2,...</p>
+        </label>
+      </div>
+
+      <div className="mt-6">
+        <button
+          onClick={onAnalyze}
+          disabled={!hasData || isAnalyzing}
+          className="flex w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 px-6 py-4 text-base font-semibold text-white shadow-[var(--shadow-colored)] transition hover:shadow-[var(--shadow-xl)] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isAnalyzing ? (
+            <>
+              <span className="relative flex h-5 w-5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/70 opacity-75"></span>
+                <span className="relative inline-flex h-5 w-5 rounded-full bg-white/90"></span>
+              </span>
+              Analyzing EEG Data...
+            </>
+          ) : (
+            <>
+              <span className="text-lg">🚀</span>
+              Analyze EEG Data
+            </>
+          )}
+        </button>
+        <p className="mt-3 text-[11px] text-gray-400">
+          {hasData
+            ? 'Ready to synthesize spectral insights using AI co-pilot.'
+            : 'Load a curated sample or upload raw EEG to enable the analysis engine.'}
         </p>
       </div>
 
-      {/* Analyze Button */}
-      <button
-        onClick={onAnalyze}
-        disabled={isAnalyzing}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
-      >
-        {isAnalyzing ? (
-          <>
-            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-            <span>Analyzing...</span>
-          </>
-        ) : (
-          <span>Analyze EEG Data</span>
-        )}
-      </button>
+      <div className="mt-6 rounded-2xl border border-gray-100 bg-white/80 p-4">
+        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Claude API</p>
+        <p className="text-xs text-gray-500 mb-3">
+          {apiKey
+            ? 'Secure connection active. Claude intelligence will enhance interpretations.'
+            : 'No API key detected. Using built-in simulated insights.'}
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            const input = document.getElementById('header-api-key');
+            if (input instanceof HTMLInputElement) {
+              input.focus();
+              input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }}
+          className="inline-flex items-center gap-2 rounded-xl border border-blue-100 bg-blue-50/70 px-4 py-2 text-xs font-semibold text-blue-600 hover:border-blue-200 hover:bg-blue-100"
+        >
+          Manage API Key
+          <span className="text-sm">↗</span>
+        </button>
+      </div>
     </div>
   );
 };
