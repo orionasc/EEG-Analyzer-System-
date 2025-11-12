@@ -12,7 +12,7 @@ export const AIInsightPanel: React.FC<AIInsightPanelProps> = ({ insight, isLoadi
       <div className="w-full bg-white rounded-lg border border-gray-200 p-6">
         <h3 className="text-base font-semibold text-gray-900 mb-6">AI Analysis</h3>
         <div className="flex flex-col items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-10 w-10 border-3 border-blue-500 border-t-transparent mb-4"></div>
+          <div className="animate-spin rounded-full h-6 w-6 border-3 border-blue-500 border-t-transparent mb-4"></div>
           <p className="text-sm text-gray-600">Analyzing brain signals...</p>
         </div>
       </div>
