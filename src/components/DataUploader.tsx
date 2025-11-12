@@ -50,7 +50,7 @@ export const DataUploader: React.FC<DataUploaderProps> = ({ onDataLoaded }) => {
           className="cursor-pointer flex flex-col items-center space-y-3"
         >
           <svg
-            className="w-10 h-10 text-gray-400"
+            className="w-8 h-8 text-gray-400"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
