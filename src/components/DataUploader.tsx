@@ -34,12 +34,10 @@ export const DataUploader: React.FC<DataUploaderProps> = ({ onDataLoaded }) => {
   );
 
   return (
-    <div className="w-full bg-white rounded-xl shadow-md p-6 border border-gray-100">
-      <div className="flex items-center mb-5">
-        <div className="w-1 h-6 bg-gradient-to-b from-purple-500 to-pink-600 rounded-full mr-3"></div>
-        <h3 className="text-lg font-semibold text-gray-800">Upload EEG Data</h3>
-      </div>
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-400 hover:bg-purple-50/30 transition-all duration-200 group">
+    <div className="w-full bg-white rounded-lg border border-gray-200 p-6">
+      <h3 className="text-base font-semibold text-gray-900 mb-5">Upload EEG Data</h3>
+
+      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 hover:bg-gray-50 transition-colors">
         <input
           type="file"
           accept=".csv"
@@ -51,21 +49,19 @@ export const DataUploader: React.FC<DataUploaderProps> = ({ onDataLoaded }) => {
           htmlFor="file-upload"
           className="cursor-pointer flex flex-col items-center space-y-3"
         >
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center group-hover:scale-105 transition-transform">
-            <svg
-              className="w-6 h-6 text-purple-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-              />
-            </svg>
-          </div>
+          <svg
+            className="w-10 h-10 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+            />
+          </svg>
           <div>
             <span className="text-sm text-gray-700 font-medium block">
               Click to upload or drag and drop
@@ -74,11 +70,9 @@ export const DataUploader: React.FC<DataUploaderProps> = ({ onDataLoaded }) => {
           </div>
         </label>
       </div>
+
       <div className="mt-4 bg-gray-50 rounded-lg p-3 border border-gray-200">
-        <p className="text-xs font-medium text-gray-700 mb-2 flex items-center">
-          <svg className="w-3.5 h-3.5 mr-1.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+        <p className="text-xs font-medium text-gray-700 mb-2">
           Expected CSV format:
         </p>
         <code className="block bg-white p-2.5 rounded text-xs text-gray-600 font-mono border border-gray-200">
