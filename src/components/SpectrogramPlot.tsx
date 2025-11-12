@@ -60,35 +60,53 @@ export const SpectrogramPlot: React.FC<SpectrogramPlotProps> = ({ analysis }) =>
   }));
 
   return (
-    <div className="w-full bg-white rounded-lg shadow-lg p-4">
-      <h3 className="text-lg font-semibold mb-2 text-gray-800">Power Spectrum</h3>
-      <Plot
-        data={[trace]}
-        layout={{
-          height: 350,
-          margin: { t: 20, r: 20, b: 50, l: 60 },
-          xaxis: {
-            title: { text: 'Frequency (Hz)' },
-            range: [0, 50],
-            gridcolor: '#e0e0e0'
-          },
-          yaxis: {
-            title: { text: 'Power' },
-            gridcolor: '#e0e0e0'
-          },
-          shapes,
-          annotations,
-          plot_bgcolor: '#fafafa',
-          paper_bgcolor: '#ffffff',
-          showlegend: false
-        }}
-        config={{
-          responsive: true,
-          displayModeBar: true,
-          displaylogo: false
-        }}
-        className="w-full"
-      />
+    <div className="w-full bg-white rounded-xl shadow-md p-6 border border-gray-100">
+      <div className="flex items-center mb-4">
+        <div className="w-1 h-6 bg-gradient-to-b from-teal-500 to-cyan-500 rounded-full mr-3"></div>
+        <h3 className="text-lg font-semibold text-gray-800">Power Spectrum</h3>
+      </div>
+      <div className="bg-gray-50/50 rounded-lg p-1">
+        <Plot
+          data={[trace]}
+          layout={{
+            height: 300,
+            margin: { t: 10, r: 20, b: 50, l: 60 },
+            xaxis: {
+              title: {
+                text: 'Frequency (Hz)',
+                font: { size: 13, color: '#4b5563' }
+              },
+              range: [0, 50],
+              gridcolor: '#e5e7eb',
+              tickfont: { size: 11, color: '#6b7280' }
+            },
+            yaxis: {
+              title: {
+                text: 'Power',
+                font: { size: 13, color: '#4b5563' }
+              },
+              gridcolor: '#e5e7eb',
+              tickfont: { size: 11, color: '#6b7280' }
+            },
+            shapes,
+            annotations,
+            plot_bgcolor: '#ffffff',
+            paper_bgcolor: 'transparent',
+            showlegend: false,
+            hoverlabel: {
+              bgcolor: '#1f2937',
+              font: { size: 11, color: '#ffffff' },
+              bordercolor: '#374151'
+            }
+          }}
+          config={{
+            responsive: true,
+            displayModeBar: true,
+            displaylogo: false
+          }}
+          className="w-full"
+        />
+      </div>
     </div>
   );
 };
