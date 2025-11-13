@@ -27,17 +27,20 @@ export const TimeSeriesPlot: React.FC<TimeSeriesPlotProps> = ({ channels, durati
   });
 
   return (
-    <div className="rounded-xl border border-slate-200/70 bg-white p-4 shadow-lg shadow-black/10">
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 pb-3">
+    <div className="rounded-2xl border border-white/10 bg-black/20 p-4 shadow-[0_1px_4px_rgba(0,0,0,0.3)] backdrop-blur-sm">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
+        <span>Operational · plotting EEG waveform stack</span>
+        <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-emerald-200">
+          <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.65)]" aria-hidden />
+          Ready
+        </span>
+      </div>
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-white/10 pb-3">
         <div className="space-y-1">
-          <h3 className="text-sm font-medium text-slate-900">Time Series Overview</h3>
-          <p className="text-[11px] text-slate-500">
+          <h3 className="text-base font-medium text-white">Time series overview</h3>
+          <p className="text-xs text-slate-300">
             Displaying {displayedChannels.length} of {channels.length} channels · {duration.toFixed(1)}s window
           </p>
-        </div>
-        <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] text-slate-600">
-          <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden />
-          Ready
         </div>
       </div>
       <Plot
@@ -48,16 +51,16 @@ export const TimeSeriesPlot: React.FC<TimeSeriesPlotProps> = ({ channels, durati
           paper_bgcolor: 'rgba(255,255,255,0)',
           plot_bgcolor: 'rgba(255,255,255,0)',
           xaxis: {
-            title: { text: 'Time (seconds)', font: { size: 12, color: '#6b7280' } },
-            gridcolor: 'rgba(148, 163, 184, 0.15)',
+            title: { text: 'Time (seconds)', font: { size: 12, color: '#94a3b8' } },
+            gridcolor: 'rgba(148, 163, 184, 0.18)',
             zeroline: false,
-            tickfont: { size: 11, color: '#4b5563' }
+            tickfont: { size: 11, color: '#cbd5f5' }
           },
           yaxis: {
-            title: { text: 'Amplitude (µV)', font: { size: 12, color: '#6b7280' } },
-            gridcolor: 'rgba(148, 163, 184, 0.15)',
+            title: { text: 'Amplitude (µV)', font: { size: 12, color: '#94a3b8' } },
+            gridcolor: 'rgba(148, 163, 184, 0.18)',
             zeroline: false,
-            tickfont: { size: 11, color: '#4b5563' }
+            tickfont: { size: 11, color: '#cbd5f5' }
           },
           legend: {
             orientation: 'h',
@@ -65,15 +68,15 @@ export const TimeSeriesPlot: React.FC<TimeSeriesPlotProps> = ({ channels, durati
             y: 1.05,
             xanchor: 'right',
             x: 1,
-            bgcolor: 'rgba(248, 250, 252, 0.75)',
-            bordercolor: 'rgba(226, 232, 240, 0.9)',
+            bgcolor: 'rgba(8, 11, 20, 0.7)',
+            bordercolor: 'rgba(148, 163, 184, 0.4)',
             borderwidth: 1,
-            font: { size: 11, color: '#334155' }
+            font: { size: 11, color: '#e2e8f0' }
           },
           hovermode: 'x unified',
           hoverlabel: {
-            bgcolor: '#111827',
-            font: { size: 11, color: '#f9fafb' }
+            bgcolor: 'rgba(15,23,42,0.9)',
+            font: { size: 11, color: '#f8fafc' }
           },
           shapes: [
             {

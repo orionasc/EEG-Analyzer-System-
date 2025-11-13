@@ -62,23 +62,23 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
 
   return (
     <section
-      className={`rounded-xl border border-white/8 bg-slate-900/60 text-slate-200 shadow-sm backdrop-blur transition-colors ${
+      className={`rounded-2xl border border-white/10 bg-white/5 text-slate-200 shadow-[0_1px_4px_rgba(0,0,0,0.3)] backdrop-blur-sm transition-colors ${
         className ?? ''
       }`.trim()}
     >
       <button
         type="button"
         onClick={toggle}
-        className="flex w-full items-center justify-between gap-3 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200"
+        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-sm font-medium text-slate-100"
         aria-expanded={isOpen}
       >
         <span>{title}</span>
         <span
-          className={`flex h-4 w-4 items-center justify-center rounded-full border border-white/20 bg-slate-900/80 text-[10px] transition-transform duration-200 ${
+          className={`flex h-5 w-5 items-center justify-center rounded-full border border-white/10 bg-white/10 text-xs text-slate-200 transition-transform duration-200 ${
             arrowRotation
           }`}
         >
-          ➤
+          ➜
         </span>
       </button>
       <div
@@ -86,7 +86,7 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
         className={`overflow-hidden transition-[max-height] duration-300 ease-in-out ${contentClassName ?? ''}`.trim()}
         style={{ maxHeight }}
       >
-        <div className="px-3 pb-3">{children}</div>
+        <div className="px-4 pb-4">{children}</div>
       </div>
     </section>
   );

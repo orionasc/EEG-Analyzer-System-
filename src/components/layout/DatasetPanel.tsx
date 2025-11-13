@@ -60,32 +60,28 @@ export const DatasetPanel: React.FC<DatasetPanelProps> = ({
   };
 
   return (
-    <CollapsibleSection title="Dataset Selection" contentClassName="text-[12px]">
-      <div className="space-y-4">
+    <CollapsibleSection title="Dataset Selection" contentClassName="text-sm">
+      <div className="space-y-5">
         <section className="space-y-2">
-          <h4 className="text-[11px] uppercase tracking-[0.2em] text-slate-400">Sample Datasets</h4>
+          <h4 className="text-xs font-medium text-slate-300">Sample datasets</h4>
           <ul className="space-y-2">
             {samples.map((sample) => {
               const isActive = activeDatasetId === sample.id;
               return (
-                <li
-                  key={sample.id}
-                  className={`rounded-lg border px-3 py-2 transition ${
-                    isActive
-                      ? 'border-blue-400/60 bg-blue-500/10 text-blue-100'
-                      : 'border-white/5 bg-slate-900/70'
-                  }`}
-                >
+                <li key={sample.id}>
                   <button
                     type="button"
                     onClick={() => onLoadSample(sample)}
-                    className={`flex w-full flex-col text-left text-[12px] transition ${
-                      isActive ? 'text-blue-100' : 'text-slate-100 hover:text-blue-300'
+                    className={`group flex w-full items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-3 text-left text-sm text-slate-100 transition-colors hover:bg-white/10 ${
+                      isActive ? 'ring-1 ring-inset ring-blue-400/60 shadow-[0_0_8px_rgba(0,200,255,0.5)]' : ''
                     }`}
                   >
-                    <span className="font-medium">{sample.name}</span>
-                    <span className="mt-1 text-[11px] leading-snug text-slate-300">
-                      {sample.description}
+                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500/40 to-cyan-400/30 text-xs text-cyan-100 shadow-[0_1px_4px_rgba(0,0,0,0.3)]">
+                      ⧉
+                    </span>
+                    <span className="flex flex-col">
+                      <span className="font-medium text-slate-100">{sample.name}</span>
+                      <span className="mt-1 text-xs text-slate-300">{sample.description}</span>
                     </span>
                   </button>
                 </li>
@@ -94,11 +90,11 @@ export const DatasetPanel: React.FC<DatasetPanelProps> = ({
           </ul>
         </section>
         <section className="space-y-2">
-          <h4 className="text-[11px] uppercase tracking-[0.2em] text-slate-400">Upload CSV</h4>
+          <h4 className="text-xs font-medium text-slate-300">Upload CSV</h4>
           <label
             htmlFor="dataset-upload"
-            className={`flex min-h-[68px] cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-slate-500/60 bg-slate-900/70 px-3 text-center text-[11px] uppercase tracking-[0.18em] transition ${
-              isDragging ? 'border-blue-400/70 text-blue-200' : 'text-slate-400 hover:border-slate-400'
+            className={`flex min-h-[72px] cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-white/10 bg-white/5 px-4 text-center text-xs text-slate-300 transition-colors hover:bg-white/10 ${
+              isDragging ? 'border-blue-400/70 text-blue-200' : ''
             }`}
             onDragOver={(event) => {
               event.preventDefault();
@@ -126,13 +122,13 @@ export const DatasetPanel: React.FC<DatasetPanelProps> = ({
           </label>
         </section>
         <section className="space-y-2">
-          <h4 className="text-[11px] uppercase tracking-[0.2em] text-slate-400">Claude API Key</h4>
+          <h4 className="text-xs font-medium text-slate-300">Claude API key</h4>
           <input
             type="password"
             value={apiKey}
             onChange={(event) => onApiKeyChange(event.target.value)}
             placeholder="Enter API key"
-            className="w-full rounded border border-white/10 bg-slate-950/80 px-2 py-2 text-[12px] text-slate-100 placeholder:text-slate-500"
+            className="w-full rounded-lg border border-white/10 bg-[#0b1220]/70 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-blue-400 focus:outline-none"
           />
         </section>
       </div>

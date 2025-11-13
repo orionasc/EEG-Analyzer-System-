@@ -55,15 +55,18 @@ export const SpectrogramPlot: React.FC<SpectrogramPlotProps> = ({ analysis }) =>
   }));
 
   return (
-    <div className="rounded-xl border border-slate-200/70 bg-white p-4 shadow-lg shadow-black/10">
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 pb-3">
+    <div className="rounded-2xl border border-white/10 bg-black/20 p-4 shadow-[0_1px_4px_rgba(0,0,0,0.3)] backdrop-blur-sm">
+      <div className="mb-3 flex items-center justify-between text-xs text-slate-400">
+        <span>Real-time spectral energy profile</span>
+        <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-blue-200">
+          <span className="h-1.5 w-1.5 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(0,200,255,0.5)]" aria-hidden />
+          PSD curve
+        </span>
+      </div>
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-white/10 pb-3">
         <div className="space-y-1">
-          <h3 className="text-sm font-medium text-slate-900">Power Spectrum</h3>
-          <p className="text-[11px] text-slate-500">Frequency distribution with band annotations</p>
-        </div>
-        <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] text-slate-600">
-          <span className="h-1.5 w-1.5 rounded-full bg-blue-500" aria-hidden />
-          PSD Curve
+          <h3 className="text-base font-medium text-white">Power spectrum</h3>
+          <p className="text-xs text-slate-300">Frequency distribution with band annotations</p>
         </div>
       </div>
       <Plot
@@ -74,20 +77,20 @@ export const SpectrogramPlot: React.FC<SpectrogramPlotProps> = ({ analysis }) =>
           paper_bgcolor: 'rgba(255,255,255,0)',
           plot_bgcolor: 'rgba(255,255,255,0)',
           xaxis: {
-            title: { text: 'Frequency (Hz)', font: { size: 12, color: '#6b7280' } },
+            title: { text: 'Frequency (Hz)', font: { size: 12, color: '#94a3b8' } },
             range: [0, 60],
-            gridcolor: 'rgba(148, 163, 184, 0.12)',
-            tickfont: { size: 11, color: '#4b5563' }
+            gridcolor: 'rgba(148, 163, 184, 0.2)',
+            tickfont: { size: 11, color: '#cbd5f5' }
           },
           yaxis: {
-            title: { text: 'Power', font: { size: 12, color: '#6b7280' } },
-            gridcolor: 'rgba(148, 163, 184, 0.12)',
-            tickfont: { size: 11, color: '#4b5563' }
+            title: { text: 'Power', font: { size: 12, color: '#94a3b8' } },
+            gridcolor: 'rgba(148, 163, 184, 0.2)',
+            tickfont: { size: 11, color: '#cbd5f5' }
           },
           shapes,
           annotations,
           hoverlabel: {
-            bgcolor: '#111827',
+            bgcolor: 'rgba(15,23,42,0.9)',
             font: { size: 11, color: '#f8fafc' }
           },
           showlegend: false,

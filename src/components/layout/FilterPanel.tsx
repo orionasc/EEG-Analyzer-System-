@@ -6,24 +6,24 @@ export const FilterPanel: React.FC = () => {
   const [artifactRejection, setArtifactRejection] = useState(false);
 
   return (
-    <CollapsibleSection title="Filters" contentClassName="text-[12px]">
+    <CollapsibleSection title="Filters" contentClassName="text-sm">
       <div className="space-y-2">
-        <label className="flex items-center justify-between rounded border border-white/5 bg-slate-900/70 px-3 py-2 text-slate-200">
-          <span>Bandpass Filter</span>
+        <label className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-100 transition-colors hover:bg-white/10">
+          <span>Bandpass filter</span>
           <input
             type="checkbox"
             checked={bandpassEnabled}
             onChange={(event) => setBandpassEnabled(event.target.checked)}
-            className="h-3 w-3 accent-blue-400"
+            className="h-4 w-4 accent-blue-400"
           />
         </label>
-        <label className="flex items-center justify-between rounded border border-white/5 bg-slate-900/70 px-3 py-2 text-slate-200">
-          <span>Artifact Rejection</span>
+        <label className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-100 transition-colors hover:bg-white/10">
+          <span>Artifact rejection</span>
           <input
             type="checkbox"
             checked={artifactRejection}
             onChange={(event) => setArtifactRejection(event.target.checked)}
-            className="h-3 w-3 accent-blue-400"
+            className="h-4 w-4 accent-blue-400"
           />
         </label>
       </div>
