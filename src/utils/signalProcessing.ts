@@ -14,23 +14,33 @@ export function bandpassFilter(
   highCut: number,
   samplingRate: number
 ): number[] {
-  // Simple implementation using frequency domain filtering
-  const fft = new FFT(data.length);
-  const complexData = new Array(data.length * 2);
+  if (data.length === 0) {
+    return [];
+  }
+
+  // fft.js requires the transform size to be a power of two. Pad the signal
+  // to the next power of two so we can safely operate on any input length
+  // (including the synthetic sample datasets).
+  const fftSize = Math.pow(2, Math.ceil(Math.log2(data.length)));
+  const fft = new FFT(fftSize);
+  const complexData = fft.createComplexArray();
 
   // Prepare complex data for FFT (real, imaginary pairs)
-  for (let i = 0; i < data.length; i++) {
-    complexData[2 * i] = data[i];
+  for (let i = 0; i < fftSize; i++) {
+    complexData[2 * i] = i < data.length ? data[i] : 0;
     complexData[2 * i + 1] = 0;
   }
 
   const out = fft.createComplexArray();
   fft.transform(out, complexData);
 
-  // Apply bandpass filter in frequency domain
-  const freqResolution = samplingRate / data.length;
-  for (let i = 0; i < data.length; i++) {
-    const freq = i * freqResolution;
+  // Apply bandpass filter in frequency domain. Handle both positive and
+  // negative frequencies when zeroing outside the pass band.
+  const freqResolution = samplingRate / fftSize;
+  const nyquistIndex = fftSize / 2;
+  for (let i = 0; i < fftSize; i++) {
+    const freqIndex = i <= nyquistIndex ? i : i - fftSize;
+    const freq = Math.abs(freqIndex * freqResolution);
     if (freq < lowCut || freq > highCut) {
       out[2 * i] = 0;
       out[2 * i + 1] = 0;
@@ -41,7 +51,7 @@ export function bandpassFilter(
   const result = fft.createComplexArray();
   fft.inverseTransform(result, out);
 
-  // Extract real part
+  // Extract real part and trim any padded samples
   const filtered = new Array(data.length);
   for (let i = 0; i < data.length; i++) {
     filtered[i] = result[2 * i];
