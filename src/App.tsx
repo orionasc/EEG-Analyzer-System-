@@ -162,9 +162,9 @@ function App() {
   const isDrawerOpen = Boolean(analysisResult && analysisResult.aiInsight && isDrawerVisible);
 
   return (
-    <div className="min-h-screen bg-transparent">
+    <div className="min-h-screen bg-gradient-to-br from-[#0e1117] to-[#1a1f25] text-slate-200">
       <div
-        className={`mx-auto flex min-h-screen max-w-[1600px] flex-col px-5 py-4 transition-transform duration-300 ease-out lg:px-8 ${
+        className={`mx-auto flex min-h-screen max-w-[1600px] flex-col gap-6 px-6 py-8 transition-transform duration-300 ease-out lg:px-12 ${
           isDrawerOpen ? 'scale-[0.99]' : 'scale-100'
         }`}
       >
@@ -185,14 +185,14 @@ function App() {
           canAnalyze={Boolean(eegData) && !isAnalyzing}
         />
 
-        <main className="flex-1 pt-4">
-          <div className="flex h-full flex-col gap-4 xl:flex-row xl:gap-6">
-            <section className="flex min-h-[400px] flex-1 flex-col overflow-hidden">
+        <main className="flex flex-1 flex-col">
+          <div className="flex h-full flex-col gap-6 xl:flex-row">
+            <section className="flex min-h-[420px] flex-1 flex-col overflow-hidden">
               <TabsPane tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab}>
                 <PlotArea activeTab={activeTab} eegData={eegData} analysisResult={analysisResult} />
               </TabsPane>
             </section>
-            <Sidebar className="w-full overflow-visible xl:w-72 xl:overflow-y-auto">
+            <Sidebar className="w-full xl:w-80">
               <DatasetPanel
                 samples={sampleDatasets}
                 onLoadSample={handleLoadSample}
