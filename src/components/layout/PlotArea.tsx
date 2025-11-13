@@ -55,40 +55,38 @@ const SpectrogramPlaceholder: React.FC = () => (
 );
 
 export const PlotArea: React.FC<PlotAreaProps> = ({ activeTab, eegData, analysisResult }) => {
+  let content: React.ReactNode = (
+    <div className="flex h-full items-center justify-center rounded-xl border border-dashed border-white/20 bg-slate-900/40 text-[12px] text-slate-300">
+      Analysis results will appear here after processing.
+    </div>
+  );
+
   if (!eegData) {
-    return (
+    content = (
       <div className="flex h-full items-center justify-center rounded-xl border border-dashed border-white/20 bg-slate-900/40 text-[12px] text-slate-300">
         Load a dataset to view analyses.
       </div>
     );
-  }
-
-  if (activeTab === 'time-series') {
-    return (
+  } else if (activeTab === 'time-series') {
+    content = (
       <div className="h-full overflow-auto pb-4">
         <TimeSeriesPlot channels={eegData.channels} duration={eegData.duration} />
       </div>
     );
-  }
-
-  if (activeTab === 'power-spectrum' && analysisResult) {
-    return (
+  } else if (activeTab === 'power-spectrum' && analysisResult) {
+    content = (
       <div className="h-full overflow-auto pb-4">
         <PowerSpectrumPlot analysis={analysisResult.signalAnalysis} />
       </div>
     );
-  }
-
-  if (activeTab === 'spectrogram') {
-    return (
+  } else if (activeTab === 'spectrogram') {
+    content = (
       <div className="h-full overflow-auto pb-4">
         <SpectrogramPlaceholder />
       </div>
     );
-  }
-
-  if (activeTab === 'raw-data') {
-    return (
+  } else if (activeTab === 'raw-data' && eegData) {
+    content = (
       <div className="h-full overflow-auto pb-4">
         <RawDataView eegData={eegData} />
       </div>
@@ -96,8 +94,10 @@ export const PlotArea: React.FC<PlotAreaProps> = ({ activeTab, eegData, analysis
   }
 
   return (
-    <div className="flex h-full items-center justify-center rounded-xl border border-dashed border-white/20 bg-slate-900/40 text-[12px] text-slate-300">
-      Analysis results will appear here after processing.
+    <div className="relative h-full">
+      <div key={activeTab} className="animate-fade-scale absolute inset-0">
+        {content}
+      </div>
     </div>
   );
 };

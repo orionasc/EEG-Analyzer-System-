@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 type Tab = {
   id: string;
@@ -13,11 +13,25 @@ interface TabsPaneProps {
 }
 
 export const TabsPane: React.FC<TabsPaneProps> = ({ tabs, activeTab, onTabChange, children }) => {
+  const [currentTab, setCurrentTab] = useState(activeTab);
+
+  useEffect(() => {
+    setCurrentTab(activeTab);
+  }, [activeTab]);
+
+  const handleTabClick = (id: string) => {
+    setCurrentTab(id);
+    onTabChange(id);
+  };
+
   return (
     <div className="flex h-full flex-col gap-3">
-      <nav className="flex items-center gap-1 border-b border-white/10 pb-2 text-[11px]" aria-label="Data views">
+      <nav
+        className="flex items-center gap-1 overflow-x-auto border-b border-white/10 pb-2 text-[11px] whitespace-nowrap"
+        aria-label="Data views"
+      >
         {tabs.map((tab) => {
-          const isActive = tab.id === activeTab;
+          const isActive = tab.id === currentTab;
           return (
             <button
               key={tab.id}
@@ -27,7 +41,7 @@ export const TabsPane: React.FC<TabsPaneProps> = ({ tabs, activeTab, onTabChange
                   ? 'bg-blue-500/80 text-slate-950 shadow-sm'
                   : 'bg-slate-900/60 text-slate-300 hover:bg-slate-900/80'
               }`}
-              onClick={() => onTabChange(tab.id)}
+              onClick={() => handleTabClick(tab.id)}
               aria-pressed={isActive}
             >
               {tab.label}

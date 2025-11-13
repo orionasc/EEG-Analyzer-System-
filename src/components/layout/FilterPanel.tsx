@@ -1,18 +1,13 @@
 import React, { useState } from 'react';
+import { CollapsibleSection } from './CollapsibleSection';
 
 export const FilterPanel: React.FC = () => {
   const [bandpassEnabled, setBandpassEnabled] = useState(true);
   const [artifactRejection, setArtifactRejection] = useState(false);
 
   return (
-    <details
-      className="group rounded-xl border border-white/8 bg-slate-900/60 text-slate-200 shadow-sm backdrop-blur"
-      open
-    >
-      <summary className="flex cursor-pointer items-center justify-between px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200">
-        Filters
-      </summary>
-      <div className="space-y-2 px-3 pb-3 text-[12px]">
+    <CollapsibleSection title="Filters" contentClassName="text-[12px]">
+      <div className="space-y-2">
         <label className="flex items-center justify-between rounded border border-white/5 bg-slate-900/70 px-3 py-2 text-slate-200">
           <span>Bandpass Filter</span>
           <input
@@ -32,6 +27,6 @@ export const FilterPanel: React.FC = () => {
           />
         </label>
       </div>
-    </details>
+    </CollapsibleSection>
   );
 };

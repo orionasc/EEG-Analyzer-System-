@@ -1,34 +1,20 @@
 import React from 'react';
 import type { AnalysisResult } from '../../types';
+import { CollapsibleSection } from './CollapsibleSection';
 
 interface BandPanelProps {
   analysisResult: AnalysisResult | null;
 }
 
 export const BandPanel: React.FC<BandPanelProps> = ({ analysisResult }) => {
-  if (!analysisResult) {
-    return (
-      <details className="rounded-xl border border-white/8 bg-slate-900/50 px-3 py-2 text-[12px] text-slate-300 shadow-sm backdrop-blur">
-        <summary className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200">
-          Frequency Bands
-        </summary>
-        <p className="pt-2 text-[11px] text-slate-400">No analysis available.</p>
-      </details>
-    );
-  }
-
-  const bands = analysisResult.signalAnalysis.frequencyBands;
-  const entries = Object.values(bands);
+  const bands = analysisResult?.signalAnalysis.frequencyBands;
+  const entries = bands ? Object.values(bands) : [];
 
   return (
-    <details
-      className="group rounded-xl border border-white/8 bg-slate-900/60 text-slate-200 shadow-sm backdrop-blur"
-      open
-    >
-      <summary className="flex cursor-pointer items-center justify-between px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200">
-        Frequency Bands
-      </summary>
-      <div className="px-3 pb-3">
+    <CollapsibleSection title="Frequency Bands" contentClassName="text-[12px]">
+      {entries.length === 0 ? (
+        <p className="text-[11px] text-slate-400">No analysis available.</p>
+      ) : (
         <table className="w-full table-fixed border-collapse text-left text-[12px]">
           <thead className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
             <tr className="border-b border-white/10">
@@ -51,7 +37,7 @@ export const BandPanel: React.FC<BandPanelProps> = ({ analysisResult }) => {
             ))}
           </tbody>
         </table>
-      </div>
-    </details>
+      )}
+    </CollapsibleSection>
   );
 };
