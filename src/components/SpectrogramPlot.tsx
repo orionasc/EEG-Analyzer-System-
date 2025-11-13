@@ -55,18 +55,15 @@ export const SpectrogramPlot: React.FC<SpectrogramPlotProps> = ({ analysis }) =>
   }));
 
   return (
-    <div className="rounded-3xl border border-white/40 bg-white/85 backdrop-blur p-6 shadow-[var(--shadow-md)]">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <p className="text-xs uppercase tracking-[0.35em] text-gray-400">Spectrum</p>
-          <h3 className="text-xl font-semibold text-gray-900">Power Spectrum Analysis</h3>
-          <p className="text-xs text-gray-500 mt-1">Frequency distribution and band emphasis</p>
+    <div className="rounded-xl border border-slate-200/70 bg-white p-4 shadow-lg shadow-black/10">
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 pb-3">
+        <div className="space-y-1">
+          <h3 className="text-sm font-medium text-slate-900">Power Spectrum</h3>
+          <p className="text-[11px] text-slate-500">Frequency distribution with band annotations</p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-gray-500">
-          <span className="inline-flex items-center gap-1 rounded-full bg-gray-50 px-3 py-1 border border-gray-100">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-            PSD Curve
-          </span>
+        <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] text-slate-600">
+          <span className="h-1.5 w-1.5 rounded-full bg-blue-500" aria-hidden />
+          PSD Curve
         </div>
       </div>
       <Plot
