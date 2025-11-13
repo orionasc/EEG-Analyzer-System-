@@ -27,16 +27,17 @@ export const TimeSeriesPlot: React.FC<TimeSeriesPlotProps> = ({ channels, durati
   });
 
   return (
-    <div className="rounded-3xl border border-white/40 bg-white/85 backdrop-blur p-6 shadow-[var(--shadow-md)]">
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <div>
-          <p className="text-xs uppercase tracking-[0.35em] text-gray-400">Time Series</p>
-          <h3 className="text-xl font-semibold text-gray-900">EEG Signal - Time Series</h3>
-          <p className="text-xs text-gray-500 mt-1">Visualising {displayedChannels.length} of {channels.length} channels · {duration.toFixed(1)}s</p>
+    <div className="rounded-xl border border-slate-200/70 bg-white p-4 shadow-lg shadow-black/10">
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 pb-3">
+        <div className="space-y-1">
+          <h3 className="text-sm font-medium text-slate-900">Time Series Overview</h3>
+          <p className="text-[11px] text-slate-500">
+            Displaying {displayedChannels.length} of {channels.length} channels · {duration.toFixed(1)}s window
+          </p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-gray-500 bg-gray-50/80 border border-gray-100 rounded-full px-4 py-1.5">
-          <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-          Live Trace Ready
+        <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] text-slate-600">
+          <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden />
+          Ready
         </div>
       </div>
       <Plot
@@ -64,10 +65,10 @@ export const TimeSeriesPlot: React.FC<TimeSeriesPlotProps> = ({ channels, durati
             y: 1.05,
             xanchor: 'right',
             x: 1,
-            bgcolor: 'rgba(255,255,255,0.65)',
-            bordercolor: 'rgba(209, 213, 219, 0.6)',
+            bgcolor: 'rgba(248, 250, 252, 0.75)',
+            bordercolor: 'rgba(226, 232, 240, 0.9)',
             borderwidth: 1,
-            font: { size: 11, color: '#374151' }
+            font: { size: 11, color: '#334155' }
           },
           hovermode: 'x unified',
           hoverlabel: {

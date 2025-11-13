@@ -33,18 +33,19 @@ export const TopBar: React.FC<TopBarProps> = ({
   canAnalyze
 }) => {
   return (
-    <header className="top-bar">
-      <div className="top-bar__content">
-        <div className="top-bar__left">
-          <h1>{title}</h1>
-          <p>{subtitle}</p>
+    <header className="rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-[12px] text-slate-200 shadow-sm backdrop-blur">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex min-w-[200px] flex-col">
+          <span className="text-[11px] uppercase tracking-[0.18em] text-slate-400">{subtitle}</span>
+          <h1 className="text-sm font-semibold text-white">{title}</h1>
         </div>
-        <div className="top-bar__right">
-          <label className="top-bar__item">
-            <span>Dataset</span>
+        <div className="flex flex-1 flex-wrap items-center justify-end gap-3 text-[11px]">
+          <label className="flex items-center gap-2 rounded-lg border border-white/10 bg-slate-900/60 px-3 py-2">
+            <span className="text-slate-300">Dataset</span>
             <select
               value={selectedDatasetId ?? ''}
               onChange={(event) => onDatasetChange(event.target.value)}
+              className="min-w-[140px] rounded border border-white/5 bg-slate-950/80 px-2 py-1 text-[11px] text-slate-100 focus:border-blue-400"
             >
               <option value="">Select dataset</option>
               {datasetOptions.map((option) => (
@@ -54,19 +55,23 @@ export const TopBar: React.FC<TopBarProps> = ({
               ))}
             </select>
           </label>
-          <div className="top-bar__item">
-            <span>Sampling Rate</span>
-            <strong>{samplingRate ? `${samplingRate} Hz` : '—'}</strong>
+          <div className="flex items-center gap-1 rounded-lg border border-white/5 bg-slate-900/60 px-3 py-2 text-slate-300">
+            <span>Sampling</span>
+            <strong className="font-medium text-white">{samplingRate ? `${samplingRate} Hz` : '—'}</strong>
           </div>
-          <div className="top-bar__item">
+          <div className="flex items-center gap-1 rounded-lg border border-white/5 bg-slate-900/60 px-3 py-2 text-slate-300">
             <span>Channels</span>
-            <strong>{channelCount ?? '—'}</strong>
+            <strong className="font-medium text-white">{channelCount ?? '—'}</strong>
           </div>
-          <div className="top-bar__item">
+          <div className="flex items-center gap-1 rounded-lg border border-white/5 bg-slate-900/60 px-3 py-2 text-slate-300">
             <span>Claude</span>
-            <strong>{isClaudeConnected ? 'Connected' : 'Simulated'}</strong>
+            <strong className="font-medium text-white">{isClaudeConnected ? 'Connected' : 'Simulated'}</strong>
           </div>
-          <button className="top-bar__action" onClick={onAnalyze} disabled={!canAnalyze || isAnalyzing}>
+          <button
+            className="rounded-lg border border-blue-400/40 bg-blue-500/90 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-900 transition hover:bg-blue-400 disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-slate-700/40 disabled:text-slate-300"
+            onClick={onAnalyze}
+            disabled={!canAnalyze || isAnalyzing}
+          >
             {isAnalyzing ? 'Analyzing…' : 'Analyze'}
           </button>
         </div>

@@ -141,8 +141,9 @@ function App() {
   const fftSampleCount = analysisResult ? analysisResult.signalAnalysis.spectralData.frequencies.length : null;
 
   return (
-    <div className="app-shell">
-      <TopBar
+    <div className="min-h-screen bg-transparent">
+      <div className="mx-auto flex min-h-screen max-w-[1600px] flex-col px-5 py-4 lg:px-8">
+        <TopBar
         title="EEG Signal Analyzer"
         subtitle="Neuroscience workspace"
         datasetOptions={datasetOptions}
@@ -154,33 +155,34 @@ function App() {
         onAnalyze={handleAnalyze}
         isAnalyzing={isAnalyzing}
         canAnalyze={Boolean(eegData) && !isAnalyzing}
-      />
+        />
 
-      <main className="workspace">
-        <div className="workspace__panes">
-          <section className="workspace__primary">
-            <TabsPane tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab}>
-              <PlotArea activeTab={activeTab} eegData={eegData} analysisResult={analysisResult} />
-            </TabsPane>
-          </section>
-          <Sidebar>
-            <DatasetPanel
-              samples={sampleDatasets}
-              onLoadSample={handleLoadSample}
-              onUpload={handleUpload}
-              apiKey={apiKey}
-              onApiKeyChange={setApiKey}
-            />
-            <BandPanel analysisResult={analysisResult} />
-            <FilterPanel />
-            <SummaryPanel
-              processingTime={analysisResult ? analysisResult.processingTime : null}
-              signalQualityLabel={signalQualityLabel}
-              fftSampleCount={fftSampleCount}
-            />
-          </Sidebar>
-        </div>
-      </main>
+        <main className="flex-1 pt-4">
+          <div className="flex h-full gap-4 lg:gap-6">
+            <section className="flex min-h-[400px] flex-1 flex-col overflow-hidden">
+              <TabsPane tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab}>
+                <PlotArea activeTab={activeTab} eegData={eegData} analysisResult={analysisResult} />
+              </TabsPane>
+            </section>
+            <Sidebar className="w-64 overflow-y-auto lg:w-72">
+              <DatasetPanel
+                samples={sampleDatasets}
+                onLoadSample={handleLoadSample}
+                onUpload={handleUpload}
+                apiKey={apiKey}
+                onApiKeyChange={setApiKey}
+              />
+              <BandPanel analysisResult={analysisResult} />
+              <FilterPanel />
+              <SummaryPanel
+                processingTime={analysisResult ? analysisResult.processingTime : null}
+                signalQualityLabel={signalQualityLabel}
+                fftSampleCount={fftSampleCount}
+              />
+            </Sidebar>
+          </div>
+        </main>
+      </div>
 
       <AIDrawer analysisResult={analysisResult} isVisible={isDrawerVisible} />
     </div>
