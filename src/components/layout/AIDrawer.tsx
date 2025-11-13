@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { AnalysisResult, AIInsight } from '../../types';
 import { getBrainStateColor } from '../../services/aiAnalysis';
 
 interface AIDrawerProps {
   analysisResult: AnalysisResult | null;
   isVisible: boolean;
+  onClose: () => void;
 }
 
 const FindingsColumn: React.FC<{ insight: AIInsight }> = ({ insight }) => {
@@ -95,17 +96,67 @@ const MetricsColumn: React.FC<{ insight: AIInsight; analysis: AnalysisResult }> 
   );
 };
 
-export const AIDrawer: React.FC<AIDrawerProps> = ({ analysisResult, isVisible }) => {
-  if (!analysisResult || !analysisResult.aiInsight || !isVisible) {
+export const AIDrawer: React.FC<AIDrawerProps> = ({ analysisResult, isVisible, onClose }) => {
+  const [shouldRender, setShouldRender] = useState(false);
+  const [isActive, setIsActive] = useState(false);
+  const frameRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (isVisible && analysisResult?.aiInsight) {
+      setShouldRender(true);
+      frameRef.current = requestAnimationFrame(() => {
+        setIsActive(true);
+      });
+      return () => {
+        if (frameRef.current !== null) {
+          cancelAnimationFrame(frameRef.current);
+          frameRef.current = null;
+        }
+      };
+    }
+
+    setIsActive(false);
+    if (!analysisResult?.aiInsight) {
+      setShouldRender(false);
+    }
+    return () => {
+      if (frameRef.current !== null) {
+        cancelAnimationFrame(frameRef.current);
+        frameRef.current = null;
+      }
+    };
+  }, [isVisible, analysisResult]);
+
+  if (!shouldRender || !analysisResult || !analysisResult.aiInsight) {
     return null;
   }
 
+  const handleTransitionEnd = () => {
+    if (!isVisible) {
+      setShouldRender(false);
+    }
+  };
+
   return (
-    <section className="animate-drawer-up fixed inset-x-0 bottom-0 z-50 translate-y-0 border-t border-slate-200/80 bg-slate-100/95 text-slate-900 shadow-[0_-24px_60px_-40px_rgba(15,23,42,1)] backdrop-blur">
+    <section
+      className={`fixed inset-x-0 bottom-0 z-50 border-t border-slate-200/80 bg-slate-100/95 text-slate-900 shadow-[0_-24px_60px_-40px_rgba(15,23,42,1)] backdrop-blur transition-transform transition-opacity duration-300 ease-in-out ${
+        isVisible && isActive ? 'translate-y-0' : 'translate-y-full'
+      } ${isVisible && isActive ? 'opacity-100' : 'opacity-0'}`}
+      onTransitionEnd={handleTransitionEnd}
+    >
       <div className="mx-auto max-w-5xl px-6 py-5">
         <header className="mb-4 flex items-center justify-between text-[11px] uppercase tracking-[0.2em] text-slate-500">
-          <span>AI Insights</span>
-          <span className="text-slate-400">Automated neuroanalysis summary</span>
+          <div className="flex items-center gap-3">
+            <span>AI Insights</span>
+            <span className="text-slate-400">Automated neuroanalysis summary</span>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full border border-slate-400/60 bg-white/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-600 shadow-sm transition hover:border-slate-500 hover:text-slate-800"
+          >
+            Close
+          </button>
         </header>
         <div className="grid gap-6 text-left md:grid-cols-2">
           <FindingsColumn insight={analysisResult.aiInsight} />

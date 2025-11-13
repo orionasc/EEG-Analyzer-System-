@@ -63,6 +63,25 @@ function App() {
     return options;
   }, [sampleDatasets, uploadedDatasetLabel]);
 
+  const activeDatasetMeta = useMemo<{ label: string | null; description: string | null }>(() => {
+    if (!selectedDatasetId) {
+      return { label: null, description: null };
+    }
+
+    if (selectedDatasetId.startsWith('sample-')) {
+      const sample = sampleDatasets.find((item) => item.id === selectedDatasetId);
+      if (sample) {
+        return { label: sample.name, description: sample.description };
+      }
+    }
+
+    if (selectedDatasetId === 'uploaded' && uploadedDatasetLabel) {
+      return { label: uploadedDatasetLabel, description: 'Imported CSV dataset' };
+    }
+
+    return { label: null, description: null };
+  }, [selectedDatasetId, sampleDatasets, uploadedDatasetLabel]);
+
   const handleAnalyze = async () => {
     if (!eegData) return;
 
@@ -139,38 +158,48 @@ function App() {
     ? determineSignalQuality(analysisResult.signalAnalysis.totalPower)
     : null;
   const fftSampleCount = analysisResult ? analysisResult.signalAnalysis.spectralData.frequencies.length : null;
+  const datasetDuration = eegData ? eegData.duration : null;
+  const isDrawerOpen = Boolean(analysisResult && analysisResult.aiInsight && isDrawerVisible);
 
   return (
     <div className="min-h-screen bg-transparent">
-      <div className="mx-auto flex min-h-screen max-w-[1600px] flex-col px-5 py-4 lg:px-8">
+      <div
+        className={`mx-auto flex min-h-screen max-w-[1600px] flex-col px-5 py-4 transition-transform duration-300 ease-out lg:px-8 ${
+          isDrawerOpen ? 'scale-[0.99]' : 'scale-100'
+        }`}
+      >
         <TopBar
-        title="EEG Signal Analyzer"
-        subtitle="Neuroscience workspace"
-        datasetOptions={datasetOptions}
-        selectedDatasetId={selectedDatasetId}
-        onDatasetChange={handleDatasetChange}
-        samplingRate={samplingRate}
-        channelCount={channelCount}
-        isClaudeConnected={Boolean(apiKey)}
-        onAnalyze={handleAnalyze}
-        isAnalyzing={isAnalyzing}
-        canAnalyze={Boolean(eegData) && !isAnalyzing}
+          title="EEG Signal Analyzer"
+          subtitle="Neuroscience workspace"
+          datasetOptions={datasetOptions}
+          selectedDatasetId={selectedDatasetId}
+          onDatasetChange={handleDatasetChange}
+          samplingRate={samplingRate}
+          channelCount={channelCount}
+          datasetDuration={datasetDuration}
+          activeDatasetLabel={activeDatasetMeta.label}
+          activeDatasetDescription={activeDatasetMeta.description}
+          isClaudeConnected={Boolean(apiKey)}
+          onAnalyze={handleAnalyze}
+          isAnalyzing={isAnalyzing}
+          canAnalyze={Boolean(eegData) && !isAnalyzing}
         />
 
         <main className="flex-1 pt-4">
-          <div className="flex h-full gap-4 lg:gap-6">
+          <div className="flex h-full flex-col gap-4 xl:flex-row xl:gap-6">
             <section className="flex min-h-[400px] flex-1 flex-col overflow-hidden">
               <TabsPane tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab}>
                 <PlotArea activeTab={activeTab} eegData={eegData} analysisResult={analysisResult} />
               </TabsPane>
             </section>
-            <Sidebar className="w-64 overflow-y-auto lg:w-72">
+            <Sidebar className="w-full overflow-visible xl:w-72 xl:overflow-y-auto">
               <DatasetPanel
                 samples={sampleDatasets}
                 onLoadSample={handleLoadSample}
                 onUpload={handleUpload}
                 apiKey={apiKey}
                 onApiKeyChange={setApiKey}
+                activeDatasetId={selectedDatasetId}
               />
               <BandPanel analysisResult={analysisResult} />
               <FilterPanel />
@@ -184,7 +213,7 @@ function App() {
         </main>
       </div>
 
-      <AIDrawer analysisResult={analysisResult} isVisible={isDrawerVisible} />
+      <AIDrawer analysisResult={analysisResult} isVisible={isDrawerVisible} onClose={() => setDrawerVisible(false)} />
     </div>
   );
 }
