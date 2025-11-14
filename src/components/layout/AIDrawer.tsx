@@ -6,6 +6,7 @@ interface AIDrawerProps {
   analysisResult: AnalysisResult | null;
   isVisible: boolean;
   onClose: () => void;
+  signalQualityLabel?: string | null;
 }
 
 const FindingsColumn: React.FC<{ insight: AIInsight }> = ({ insight }) => {
@@ -50,10 +51,15 @@ const FindingsColumn: React.FC<{ insight: AIInsight }> = ({ insight }) => {
   );
 };
 
-const MetricsColumn: React.FC<{ insight: AIInsight; analysis: AnalysisResult }> = ({ insight, analysis }) => {
+const MetricsColumn: React.FC<{
+  insight: AIInsight;
+  analysis: AnalysisResult;
+  signalQualityLabel?: string | null;
+}> = ({ insight, analysis, signalQualityLabel }) => {
   const { signalAnalysis } = analysis;
   const dominantColor = getBrainStateColor(insight.brainState);
   const bandEntries = Object.values(signalAnalysis.frequencyBands);
+  const dominantBand = bandEntries.reduce((prev, current) => (current.power > prev.power ? current : prev));
 
   return (
     <div className="space-y-4 text-sm text-slate-100">
@@ -65,7 +71,17 @@ const MetricsColumn: React.FC<{ insight: AIInsight; analysis: AnalysisResult }> 
         {insight.brainState && (
           <p className="text-xs text-slate-300">State: {insight.brainState}</p>
         )}
+        <p className="mt-1 text-xs text-slate-400">
+          Strongest band: {dominantBand.name} ({dominantBand.range[0]}–{dominantBand.range[1]} Hz)
+        </p>
       </div>
+      {signalQualityLabel && (
+        <div className="rounded-xl border border-emerald-400/30 bg-emerald-500/10 p-4 text-sm text-emerald-100 shadow-[0_1px_4px_rgba(0,0,0,0.3)]">
+          <h3 className="text-sm font-medium text-emerald-100">Signal quality</h3>
+          <p className="text-lg font-semibold">{signalQualityLabel}</p>
+          <p className="mt-1 text-xs text-emerald-200/80">Based on overall spectral power</p>
+        </div>
+      )}
       <div className="space-y-2">
         <h4 className="text-xs font-medium text-slate-300">Band metrics</h4>
         <ul className="space-y-2">
@@ -96,7 +112,7 @@ const MetricsColumn: React.FC<{ insight: AIInsight; analysis: AnalysisResult }> 
   );
 };
 
-export const AIDrawer: React.FC<AIDrawerProps> = ({ analysisResult, isVisible, onClose }) => {
+export const AIDrawer: React.FC<AIDrawerProps> = ({ analysisResult, isVisible, onClose, signalQualityLabel }) => {
   const [shouldRender, setShouldRender] = useState(false);
   const [isActive, setIsActive] = useState(false);
   const frameRef = useRef<number | null>(null);
@@ -161,7 +177,11 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({ analysisResult, isVisible, o
         </header>
         <div className="grid gap-4 text-left md:grid-cols-2">
           <FindingsColumn insight={analysisResult.aiInsight} />
-          <MetricsColumn insight={analysisResult.aiInsight} analysis={analysisResult} />
+          <MetricsColumn
+            insight={analysisResult.aiInsight}
+            analysis={analysisResult}
+            signalQualityLabel={signalQualityLabel}
+          />
         </div>
       </div>
     </section>

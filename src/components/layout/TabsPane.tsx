@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 type Tab = {
   id: string;
@@ -13,17 +13,6 @@ interface TabsPaneProps {
 }
 
 export const TabsPane: React.FC<TabsPaneProps> = ({ tabs, activeTab, onTabChange, children }) => {
-  const [currentTab, setCurrentTab] = useState(activeTab);
-
-  useEffect(() => {
-    setCurrentTab(activeTab);
-  }, [activeTab]);
-
-  const handleTabClick = (id: string) => {
-    setCurrentTab(id);
-    onTabChange(id);
-  };
-
   return (
     <div className="flex h-full flex-col gap-4">
       <nav
@@ -31,7 +20,7 @@ export const TabsPane: React.FC<TabsPaneProps> = ({ tabs, activeTab, onTabChange
         aria-label="Data views"
       >
         {tabs.map((tab) => {
-          const isActive = tab.id === currentTab;
+          const isActive = tab.id === activeTab;
           return (
             <button
               key={tab.id}
@@ -41,7 +30,7 @@ export const TabsPane: React.FC<TabsPaneProps> = ({ tabs, activeTab, onTabChange
                   ? 'border-b-2 border-blue-400 text-blue-200'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
-              onClick={() => handleTabClick(tab.id)}
+              onClick={() => onTabChange(tab.id)}
               aria-pressed={isActive}
             >
               {tab.label}

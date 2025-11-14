@@ -26,6 +26,12 @@ export interface FrequencyBands {
   gamma: FrequencyBand;
 }
 
+export interface SpectrogramData {
+  times: number[];
+  frequencies: number[];
+  magnitudes: number[][];
+}
+
 export interface SignalAnalysis {
   frequencyBands: FrequencyBands;
   dominantFrequency: number;
@@ -34,6 +40,10 @@ export interface SignalAnalysis {
     frequencies: number[];
     powers: number[];
   };
+  rawSignal: number[];
+  filteredSignal: number[];
+  artifactIndices: number[];
+  spectrogram?: SpectrogramData;
 }
 
 export interface AIInsight {
