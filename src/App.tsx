@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import type { AnalysisResult, EEGData } from './types';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { AnalysisResult, EEGData, FrequencyBands, SignalAnalysis, SpectrogramData } from './types';
 import { analyzeSignal } from './utils/signalProcessing';
 import { analyzeWithAI } from './services/aiAnalysis';
 import { getSampleDatasets } from './utils/dataGenerator';
@@ -20,6 +20,29 @@ type SampleDataset = {
   data: EEGData;
 };
 
+type FilterSettings = {
+  bandpassEnabled: boolean;
+  artifactRejection: boolean;
+};
+
+type PipelineState = {
+  rawSignal: number[] | null;
+  filteredSignal: number[] | null;
+  fftResults: { frequencies: number[]; powers: number[] } | null;
+  bandpowers: FrequencyBands | null;
+  spectrogram: SpectrogramData | null;
+  artifactIndices: number[];
+};
+
+const initialPipelineState: PipelineState = {
+  rawSignal: null,
+  filteredSignal: null,
+  fftResults: null,
+  bandpowers: null,
+  spectrogram: null,
+  artifactIndices: []
+};
+
 const determineSignalQuality = (totalPower: number) => {
   if (totalPower > 8) return 'Excellent';
   if (totalPower > 4) return 'Good';
@@ -35,8 +58,11 @@ const tabs = [
 ];
 
 function App() {
-  const [eegData, setEegData] = useState<EEGData | null>(null);
+  const [activeDataset, setActiveDataset] = useState<EEGData | null>(null);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [signalAnalysis, setSignalAnalysis] = useState<SignalAnalysis | null>(null);
+  const [pipelineState, setPipelineState] = useState<PipelineState>(initialPipelineState);
+  const [processingTime, setProcessingTime] = useState<number | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [apiKey, setApiKey] = useState('');
   const [activeTab, setActiveTab] = useState('time-series');
@@ -44,6 +70,10 @@ function App() {
   const [uploadedDatasetLabel, setUploadedDatasetLabel] = useState<string | null>(null);
   const [uploadedDatasetData, setUploadedDatasetData] = useState<EEGData | null>(null);
   const [isDrawerVisible, setDrawerVisible] = useState(false);
+  const [filterSettings, setFilterSettings] = useState<FilterSettings>({
+    bandpassEnabled: true,
+    artifactRejection: false
+  });
 
   const sampleDatasets: SampleDataset[] = useMemo(() => {
     const samples = getSampleDatasets();
@@ -82,23 +112,52 @@ function App() {
     return { label: null, description: null };
   }, [selectedDatasetId, sampleDatasets, uploadedDatasetLabel]);
 
+  const computeSignalAnalysis = useCallback(
+    (dataset: EEGData) => {
+      const start = performance.now();
+      const analysis = analyzeSignal(dataset.channels[0].data, dataset.samplingRate, {
+        bandpass: { enabled: filterSettings.bandpassEnabled, lowCut: 0.5, highCut: 50 },
+        artifactRejection: { enabled: filterSettings.artifactRejection, threshold: 3 },
+        spectrogram: { enabled: true }
+      });
+      const duration = performance.now() - start;
+
+      setSignalAnalysis(analysis);
+      setPipelineState({
+        rawSignal: analysis.rawSignal,
+        filteredSignal: analysis.filteredSignal,
+        fftResults: analysis.spectralData,
+        bandpowers: analysis.frequencyBands,
+        spectrogram: analysis.spectrogram ?? null,
+        artifactIndices: analysis.artifactIndices
+      });
+      setProcessingTime(duration);
+      return { analysis, duration };
+    },
+    [filterSettings.bandpassEnabled, filterSettings.artifactRejection]
+  );
+
+  useEffect(() => {
+    if (!activeDataset) {
+      setSignalAnalysis(null);
+      setPipelineState(initialPipelineState);
+      setProcessingTime(null);
+      return;
+    }
+
+    computeSignalAnalysis(activeDataset);
+  }, [activeDataset, computeSignalAnalysis]);
+
   const handleAnalyze = async () => {
-    if (!eegData) return;
+    if (!activeDataset) return;
 
     setIsAnalyzing(true);
-    const startTime = performance.now();
 
     try {
-      const channelData = eegData.channels[0].data;
-      const signalAnalysis = analyzeSignal(channelData, eegData.samplingRate);
-      const aiInsight = await analyzeWithAI(signalAnalysis, apiKey);
-      const processingTime = performance.now() - startTime;
+      const { analysis, duration } = computeSignalAnalysis(activeDataset);
+      const aiInsight = await analyzeWithAI(analysis, apiKey);
 
-      setAnalysisResult({
-        signalAnalysis,
-        aiInsight,
-        processingTime
-      });
+      setAnalysisResult({ signalAnalysis: analysis, aiInsight, processingTime: duration });
       setDrawerVisible(true);
     } catch (error) {
       console.error('Analysis error:', error);
@@ -108,26 +167,27 @@ function App() {
     }
   };
 
-  const handleLoadSample = (sample: SampleDataset) => {
-    setEegData(sample.data);
+  const applyDataset = useCallback((dataset: EEGData, id: string) => {
+    setActiveDataset(dataset);
+    setSelectedDatasetId(id);
     setAnalysisResult(null);
-    setSelectedDatasetId(sample.id);
     setDrawerVisible(false);
+  }, []);
+
+  const handleLoadSample = (sample: SampleDataset) => {
+    applyDataset(sample.data, sample.id);
   };
 
   const handleUpload = (data: EEGData, label: string) => {
-    setEegData(data);
-    setAnalysisResult(null);
     setUploadedDatasetData(data);
     setUploadedDatasetLabel(label);
-    setSelectedDatasetId('uploaded');
-    setDrawerVisible(false);
+    applyDataset(data, 'uploaded');
   };
 
   const handleDatasetChange = (id: string) => {
     if (!id) {
       setSelectedDatasetId(null);
-      setEegData(null);
+      setActiveDataset(null);
       setAnalysisResult(null);
       setDrawerVisible(false);
       return;
@@ -136,30 +196,47 @@ function App() {
     if (id.startsWith('sample-')) {
       const sample = sampleDatasets.find((item) => item.id === id);
       if (sample) {
-        setEegData(sample.data);
-        setAnalysisResult(null);
-        setSelectedDatasetId(id);
-        setDrawerVisible(false);
+        applyDataset(sample.data, id);
       }
       return;
     }
 
     if (id === 'uploaded' && uploadedDatasetData) {
-      setEegData(uploadedDatasetData);
-      setAnalysisResult(null);
-      setSelectedDatasetId(id);
-      setDrawerVisible(false);
+      applyDataset(uploadedDatasetData, id);
     }
   };
 
-  const samplingRate = eegData ? eegData.samplingRate : null;
-  const channelCount = eegData ? eegData.channels.length : null;
-  const signalQualityLabel = analysisResult
-    ? determineSignalQuality(analysisResult.signalAnalysis.totalPower)
-    : null;
-  const fftSampleCount = analysisResult ? analysisResult.signalAnalysis.spectralData.frequencies.length : null;
-  const datasetDuration = eegData ? eegData.duration : null;
+  const handleFilterSettingsChange = useCallback(
+    (settings: { bandpassEnabled: boolean; artifactRejectionEnabled: boolean }) => {
+      setFilterSettings((previous) => {
+        const next = {
+          bandpassEnabled: settings.bandpassEnabled,
+          artifactRejection: settings.artifactRejectionEnabled
+        };
+
+        const changed =
+          previous.bandpassEnabled !== next.bandpassEnabled ||
+          previous.artifactRejection !== next.artifactRejection;
+
+        if (changed) {
+          setAnalysisResult(null);
+          setDrawerVisible(false);
+          return next;
+        }
+
+        return previous;
+      });
+    },
+    []
+  );
+
+  const samplingRate = activeDataset ? activeDataset.samplingRate : null;
+  const channelCount = activeDataset ? activeDataset.channels.length : null;
+  const signalQualityLabel = signalAnalysis ? determineSignalQuality(signalAnalysis.totalPower) : null;
+  const fftSampleCount = pipelineState.fftResults ? pipelineState.fftResults.frequencies.length : null;
+  const datasetDuration = activeDataset ? activeDataset.duration : null;
   const isDrawerOpen = Boolean(analysisResult && analysisResult.aiInsight && isDrawerVisible);
+  const canAnalyze = Boolean(activeDataset);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0e1117] to-[#1a1f25] text-slate-200">
@@ -182,14 +259,14 @@ function App() {
           isClaudeConnected={Boolean(apiKey)}
           onAnalyze={handleAnalyze}
           isAnalyzing={isAnalyzing}
-          canAnalyze={Boolean(eegData) && !isAnalyzing}
+          canAnalyze={canAnalyze}
         />
 
         <main className="flex flex-1 flex-col">
           <div className="flex h-full flex-col gap-6 xl:flex-row">
             <section className="flex min-h-[420px] flex-1 flex-col overflow-hidden">
               <TabsPane tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab}>
-                <PlotArea activeTab={activeTab} eegData={eegData} analysisResult={analysisResult} />
+                <PlotArea activeTab={activeTab} eegData={activeDataset} signalAnalysis={signalAnalysis} />
               </TabsPane>
             </section>
             <Sidebar className="w-full xl:w-80">
@@ -201,10 +278,17 @@ function App() {
                 onApiKeyChange={setApiKey}
                 activeDatasetId={selectedDatasetId}
               />
-              <BandPanel analysisResult={analysisResult} />
-              <FilterPanel />
+              <BandPanel
+                frequencyBands={pipelineState.bandpowers}
+                dominantFrequency={signalAnalysis?.dominantFrequency ?? null}
+              />
+              <FilterPanel
+                bandpassEnabled={filterSettings.bandpassEnabled}
+                artifactRejectionEnabled={filterSettings.artifactRejection}
+                onChange={handleFilterSettingsChange}
+              />
               <SummaryPanel
-                processingTime={analysisResult ? analysisResult.processingTime : null}
+                processingTime={processingTime}
                 signalQualityLabel={signalQualityLabel}
                 fftSampleCount={fftSampleCount}
               />
@@ -213,7 +297,12 @@ function App() {
         </main>
       </div>
 
-      <AIDrawer analysisResult={analysisResult} isVisible={isDrawerVisible} onClose={() => setDrawerVisible(false)} />
+      <AIDrawer
+        analysisResult={analysisResult}
+        isVisible={isDrawerVisible}
+        onClose={() => setDrawerVisible(false)}
+        signalQualityLabel={signalQualityLabel}
+      />
     </div>
   );
 }

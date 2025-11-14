@@ -1,12 +1,13 @@
 import React from 'react';
-import type { AnalysisResult, EEGData } from '../../types';
+import type { EEGData, SignalAnalysis } from '../../types';
 import { TimeSeriesPlot } from '../TimeSeriesPlot';
-import { SpectrogramPlot as PowerSpectrumPlot } from '../SpectrogramPlot';
+import { PowerSpectrumPlot } from '../PowerSpectrumPlot';
+import { SpectrogramPlot } from '../SpectrogramPlot';
 
 interface PlotAreaProps {
   activeTab: string;
   eegData: EEGData | null;
-  analysisResult: AnalysisResult | null;
+  signalAnalysis: SignalAnalysis | null;
 }
 
 const RawDataView: React.FC<{ eegData: EEGData }> = ({ eegData }) => {
@@ -47,59 +48,60 @@ const RawDataView: React.FC<{ eegData: EEGData }> = ({ eegData }) => {
 };
 
 const SpectrogramPlaceholder: React.FC = () => (
-  <div className="rounded-2xl border border-white/10 bg-black/20 p-6 text-slate-200 shadow-[0_1px_4px_rgba(0,0,0,0.3)] backdrop-blur-sm">
-    <p className="text-xs text-slate-400">Spectrogram preview</p>
-    <h3 className="text-sm font-medium text-white">Spectrogram View</h3>
-    <p className="mt-2 text-xs leading-relaxed text-slate-300">
-      Time-frequency visualizations will render here once spectrogram data becomes available.
-    </p>
+  <div className="flex h-full items-center justify-center rounded-2xl border border-white/10 bg-black/20 p-6 text-sm text-slate-300 shadow-[0_1px_4px_rgba(0,0,0,0.3)] backdrop-blur-sm">
+    Spectrogram will render after the signal is processed.
   </div>
 );
 
-export const PlotArea: React.FC<PlotAreaProps> = ({ activeTab, eegData, analysisResult }) => {
-  let content: React.ReactNode = (
-    <div className="flex h-full items-center justify-center rounded-2xl border border-white/10 bg-black/20 p-6 text-sm text-slate-300 shadow-[0_1px_4px_rgba(0,0,0,0.3)] backdrop-blur-sm">
-      Analysis results will appear here after processing.
-    </div>
-  );
+const EmptyState: React.FC<{ message: string }> = ({ message }) => (
+  <div className="flex h-full items-center justify-center rounded-2xl border border-white/10 bg-black/20 p-6 text-sm text-slate-300 shadow-[0_1px_4px_rgba(0,0,0,0.3)] backdrop-blur-sm">
+    {message}
+  </div>
+);
 
-  if (!eegData) {
-    content = (
-      <div className="flex h-full items-center justify-center rounded-2xl border border-white/10 bg-black/20 p-6 text-sm text-slate-300 shadow-[0_1px_4px_rgba(0,0,0,0.3)] backdrop-blur-sm">
-        Load a dataset to view analyses.
-      </div>
-    );
-  } else if (activeTab === 'time-series') {
-    content = (
-      <div className="h-full overflow-auto pb-4">
-        <TimeSeriesPlot channels={eegData.channels} duration={eegData.duration} />
-      </div>
-    );
-  } else if (activeTab === 'power-spectrum' && analysisResult) {
-    content = (
-      <div className="h-full overflow-auto pb-4">
-        <PowerSpectrumPlot analysis={analysisResult.signalAnalysis} />
-      </div>
-    );
-  } else if (activeTab === 'spectrogram') {
-    content = (
-      <div className="h-full overflow-auto pb-4">
-        <SpectrogramPlaceholder />
-      </div>
-    );
-  } else if (activeTab === 'raw-data' && eegData) {
-    content = (
-      <div className="h-full overflow-auto pb-4">
-        <RawDataView eegData={eegData} />
-      </div>
-    );
-  }
+const TabPanel: React.FC<{ isActive: boolean; children: React.ReactNode }> = ({ isActive, children }) => (
+  <div
+    className={`h-full transition-all duration-300 ${
+      isActive ? 'relative opacity-100' : 'absolute inset-0 -z-10 opacity-0 pointer-events-none'
+    }`.trim()}
+    aria-hidden={!isActive}
+  >
+    <div className="h-full overflow-auto pb-4">{children}</div>
+  </div>
+);
+
+export const PlotArea: React.FC<PlotAreaProps> = ({ activeTab, eegData, signalAnalysis }) => {
+  const hasDataset = Boolean(eegData);
+  const hasAnalysis = Boolean(signalAnalysis);
+  const spectrogram = signalAnalysis?.spectrogram;
 
   return (
     <div className="relative h-full">
-      <div key={activeTab} className="animate-fade-scale absolute inset-0">
-        {content}
-      </div>
+      {!hasDataset && <EmptyState message="Load a dataset to view analyses." />}
+
+      {hasDataset && (
+        <>
+          <TabPanel isActive={activeTab === 'time-series'}>
+            <TimeSeriesPlot channels={eegData!.channels} duration={eegData!.duration} />
+          </TabPanel>
+
+          <TabPanel isActive={activeTab === 'power-spectrum'}>
+            {hasAnalysis ? (
+              <PowerSpectrumPlot analysis={signalAnalysis!} />
+            ) : (
+              <EmptyState message="Run an analysis to view the power spectrum." />
+            )}
+          </TabPanel>
+
+          <TabPanel isActive={activeTab === 'spectrogram'}>
+            {hasAnalysis && spectrogram ? <SpectrogramPlot spectrogram={spectrogram} /> : <SpectrogramPlaceholder />}
+          </TabPanel>
+
+          <TabPanel isActive={activeTab === 'raw-data'}>
+            <RawDataView eegData={eegData!} />
+          </TabPanel>
+        </>
+      )}
     </div>
   );
 };

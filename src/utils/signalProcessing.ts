@@ -1,5 +1,22 @@
 import FFT from 'fft.js';
-import type { FrequencyBands, SignalAnalysis } from '../types';
+import type { FrequencyBands, SignalAnalysis, SpectrogramData } from '../types';
+
+export interface AnalysisOptions {
+  bandpass?: {
+    enabled?: boolean;
+    lowCut?: number;
+    highCut?: number;
+  };
+  artifactRejection?: {
+    enabled?: boolean;
+    threshold?: number;
+  };
+  spectrogram?: {
+    enabled?: boolean;
+    windowSize?: number;
+    overlap?: number;
+  };
+}
 
 /**
  * Apply a bandpass filter to EEG data
@@ -190,18 +207,58 @@ export function detectArtifacts(data: number[], threshold: number = 3): number[]
  */
 export function analyzeSignal(
   data: number[],
-  samplingRate: number
+  samplingRate: number,
+  options: AnalysisOptions = {}
 ): SignalAnalysis {
-  // Filter the signal
-  const filtered = bandpassFilter(data, 0.5, 50, samplingRate);
+  const rawSignal = [...data];
 
-  // Calculate PSD
-  const { frequencies, powers } = calculatePSD(filtered, samplingRate);
+  const bandpassDefaults = {
+    enabled: true,
+    lowCut: 0.5,
+    highCut: 50
+  };
 
-  // Extract frequency bands
+  const artifactDefaults = {
+    enabled: false,
+    threshold: 3
+  };
+
+  const spectrogramDefaults = {
+    enabled: true,
+    windowSize: 256,
+    overlap: 0.5
+  };
+
+  const bandpass = { ...bandpassDefaults, ...options.bandpass };
+  const artifactRejection = { ...artifactDefaults, ...options.artifactRejection };
+  const spectrogramConfig = { ...spectrogramDefaults, ...options.spectrogram };
+
+  let workingSignal = [...rawSignal];
+
+  if (bandpass.enabled) {
+    workingSignal = bandpassFilter(
+      workingSignal,
+      bandpass.lowCut ?? bandpassDefaults.lowCut,
+      bandpass.highCut ?? bandpassDefaults.highCut,
+      samplingRate
+    );
+  }
+
+  let artifactIndices: number[] = [];
+  if (artifactRejection.enabled) {
+    artifactIndices = detectArtifacts(workingSignal, artifactRejection.threshold);
+    if (artifactIndices.length > 0) {
+      const artifactSet = new Set(artifactIndices);
+      workingSignal = workingSignal.map((value, index) => (artifactSet.has(index) ? 0 : value));
+    }
+  }
+
+  const filteredSignal = [...workingSignal];
+
+  const { frequencies, powers } = calculatePSD(filteredSignal, samplingRate);
+
   const frequencyBands = extractFrequencyBands(frequencies, powers);
 
-  // Find dominant frequency
   let maxPower = 0;
   let dominantFrequency = 0;
   for (let i = 0; i < frequencies.length; i++) {
@@ -211,14 +268,86 @@ export function analyzeSignal(
     }
   }
 
-  // Calculate total power
   const totalPower = powers.reduce((a, b) => a + b, 0);
+
+  let spectrogram: SpectrogramData | undefined;
+  if (spectrogramConfig.enabled) {
+    spectrogram = computeSpectrogram(filteredSignal, samplingRate, spectrogramConfig.windowSize, spectrogramConfig.overlap);
+  }
 
   return {
     frequencyBands,
     dominantFrequency,
     totalPower,
-    spectralData: { frequencies, powers }
+    spectralData: { frequencies, powers },
+    rawSignal,
+    filteredSignal,
+    artifactIndices,
+    spectrogram
+  };
+}
+
+export function computeSpectrogram(
+  data: number[],
+  samplingRate: number,
+  windowSize: number = 256,
+  overlap: number = 0.5
+): SpectrogramData {
+  const size = Math.max(32, Math.min(windowSize, data.length));
+  const fftSize = Math.pow(2, Math.ceil(Math.log2(size)));
+  const hopSize = Math.max(1, Math.floor(fftSize * (1 - overlap)));
+
+  const window: number[] = new Array(fftSize).fill(0).map((_, index) => {
+    if (index >= size) return 0;
+    // Hamming window
+    return 0.54 - 0.46 * Math.cos((2 * Math.PI * index) / (size - 1));
+  });
+
+  const fft = new FFT(fftSize);
+  const complexBuffer = fft.createComplexArray();
+  const out = fft.createComplexArray();
+
+  const frequencies: number[] = [];
+  for (let i = 0; i < fftSize / 2; i++) {
+    frequencies.push((i * samplingRate) / fftSize);
+  }
+
+  const magnitudeColumns: number[][] = [];
+  const times: number[] = [];
+
+  for (let start = 0; start + size <= data.length; start += hopSize) {
+    for (let i = 0; i < fftSize; i++) {
+      const sample = i < size ? data[start + i] * window[i] : 0;
+      complexBuffer[2 * i] = sample;
+      complexBuffer[2 * i + 1] = 0;
+    }
+
+    fft.transform(out, complexBuffer);
+
+    const magnitudes: number[] = [];
+    for (let i = 0; i < fftSize / 2; i++) {
+      const real = out[2 * i];
+      const imag = out[2 * i + 1];
+      const magnitude = Math.sqrt(real * real + imag * imag);
+      const power = magnitude * magnitude;
+      // Convert to decibels with floor to avoid -Infinity
+      const db = 10 * Math.log10(power + 1e-12);
+      magnitudes.push(db);
+    }
+
+    magnitudeColumns.push(magnitudes);
+    const midpoint = start + size / 2;
+    times.push(midpoint / samplingRate);
+  }
+
+  const magnitudes: number[][] = frequencies.map((_, freqIndex) =>
+    magnitudeColumns.map((column) => column[freqIndex] ?? -120)
+  );
+
+  return {
+    times,
+    frequencies,
+    magnitudes
   };
 }
 

@@ -1,9 +1,24 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { CollapsibleSection } from './CollapsibleSection';
 
-export const FilterPanel: React.FC = () => {
-  const [bandpassEnabled, setBandpassEnabled] = useState(true);
-  const [artifactRejection, setArtifactRejection] = useState(false);
+interface FilterPanelProps {
+  bandpassEnabled: boolean;
+  artifactRejectionEnabled: boolean;
+  onChange: (settings: { bandpassEnabled: boolean; artifactRejectionEnabled: boolean }) => void;
+}
+
+export const FilterPanel: React.FC<FilterPanelProps> = ({
+  bandpassEnabled,
+  artifactRejectionEnabled,
+  onChange
+}) => {
+  const handleBandpassChange = (value: boolean) => {
+    onChange({ bandpassEnabled: value, artifactRejectionEnabled });
+  };
+
+  const handleArtifactChange = (value: boolean) => {
+    onChange({ bandpassEnabled, artifactRejectionEnabled: value });
+  };
 
   return (
     <CollapsibleSection title="Filters" contentClassName="text-sm">
@@ -13,7 +28,7 @@ export const FilterPanel: React.FC = () => {
           <input
             type="checkbox"
             checked={bandpassEnabled}
-            onChange={(event) => setBandpassEnabled(event.target.checked)}
+            onChange={(event) => handleBandpassChange(event.target.checked)}
             className="h-4 w-4 accent-blue-400"
           />
         </label>
@@ -21,8 +36,8 @@ export const FilterPanel: React.FC = () => {
           <span>Artifact rejection</span>
           <input
             type="checkbox"
-            checked={artifactRejection}
-            onChange={(event) => setArtifactRejection(event.target.checked)}
+            checked={artifactRejectionEnabled}
+            onChange={(event) => handleArtifactChange(event.target.checked)}
             className="h-4 w-4 accent-blue-400"
           />
         </label>
