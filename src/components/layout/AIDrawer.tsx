@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { AnalysisResult, AIInsight } from '../../types';
-import { getBrainStateColor } from '../../services/aiAnalysis';
+import { getBrainStateColor } from '../../utils/aiEngine';
 
 interface AIDrawerProps {
   analysisResult: AnalysisResult | null;
@@ -10,43 +10,89 @@ interface AIDrawerProps {
 }
 
 const FindingsColumn: React.FC<{ insight: AIInsight }> = ({ insight }) => {
+  const paragraphs = insight.deepAnalysis
+    .split(/\n{2,}/)
+    .map((chunk) => chunk.trim())
+    .filter(Boolean);
+
   return (
     <div className="space-y-4 text-sm text-slate-100">
-      <h3 className="text-sm font-medium text-white">Key findings</h3>
-      <ul className="space-y-2">
-        {insight.anomalies.length > 0 ? (
-          insight.anomalies.map((item, idx) => (
-            <li
-              key={idx}
-              className="rounded-xl border border-white/10 bg-white/5 p-3 text-sm leading-relaxed text-slate-100 shadow-[0_1px_4px_rgba(0,0,0,0.3)]"
-            >
-              {item}
-            </li>
-          ))
-        ) : (
-          <li className="rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-slate-200">
-            No notable anomalies detected.
-          </li>
+      <div className="rounded-xl border border-white/10 bg-white/5 p-4 shadow-[0_1px_4px_rgba(0,0,0,0.3)]">
+        <h3 className="text-sm font-medium text-white">Primary brain state</h3>
+        <p className="text-base font-semibold text-white">{insight.brainState.classification}</p>
+        {insight.brainState.confidence && (
+          <p className="text-xs text-slate-300">Confidence: {insight.brainState.confidence}</p>
         )}
-      </ul>
-      <div className="space-y-2">
-        <h4 className="text-xs font-medium text-slate-300">Clinical relevance</h4>
-        <p className="rounded-xl border border-white/10 bg-white/5 p-3 leading-relaxed text-slate-200">
-          {insight.summary}
-        </p>
+        {insight.brainState.description && (
+          <p className="mt-2 text-xs text-slate-300">{insight.brainState.description}</p>
+        )}
       </div>
-      {insight.recommendations.length > 0 && (
+      <div className="space-y-2">
+        <h4 className="text-xs font-medium text-slate-300">Deep analysis</h4>
         <div className="space-y-2">
-          <h4 className="text-xs font-medium text-slate-300">Recommendations</h4>
+          {paragraphs.length > 0 ? (
+            paragraphs.map((paragraph, index) => (
+              <p key={index} className="rounded-xl border border-white/10 bg-white/5 p-3 leading-relaxed text-slate-200">
+                {paragraph}
+              </p>
+            ))
+          ) : (
+            <p className="rounded-xl border border-white/10 bg-white/5 p-3 leading-relaxed text-slate-200">
+              No detailed commentary returned.
+            </p>
+          )}
+        </div>
+      </div>
+      {insight.targetedAnalysis && (
+        <div className="space-y-2">
+          <h4 className="text-xs font-medium text-slate-300">Targeted analysis</h4>
+          <p className="rounded-xl border border-violet-400/30 bg-violet-500/10 p-3 text-sm leading-relaxed text-violet-100">
+            {insight.targetedAnalysis}
+          </p>
+        </div>
+      )}
+      {insight.insights.length > 0 && (
+        <div className="space-y-2">
+          <h4 className="text-xs font-medium text-slate-300">Actionable insights</h4>
           <ul className="space-y-2">
-            {insight.recommendations.map((item, idx) => (
-              <li key={idx} className="rounded-xl border border-white/10 bg-gradient-to-r from-emerald-500/10 to-cyan-400/10 p-3 text-sm text-emerald-100">
+            {insight.insights.map((item, idx) => (
+              <li
+                key={idx}
+                className="rounded-xl border border-emerald-400/30 bg-emerald-500/10 p-3 text-sm leading-relaxed text-emerald-100"
+              >
                 {item}
               </li>
             ))}
           </ul>
         </div>
       )}
+      {insight.cohortComparison && (
+        <div className="space-y-2">
+          <h4 className="text-xs font-medium text-slate-300">Cohort comparison</h4>
+          <p className="rounded-xl border border-cyan-400/30 bg-cyan-500/10 p-3 text-sm leading-relaxed text-cyan-100">
+            {insight.cohortComparison}
+          </p>
+        </div>
+      )}
+      <div className="space-y-2">
+        <h4 className="text-xs font-medium text-slate-300">AI artifact detector</h4>
+        <ul className="space-y-2">
+          {insight.artifactFindings.length > 0 ? (
+            insight.artifactFindings.map((item, idx) => (
+              <li
+                key={idx}
+                className="rounded-xl border border-white/10 bg-white/5 p-3 text-sm leading-relaxed text-slate-200"
+              >
+                {item}
+              </li>
+            ))
+          ) : (
+            <li className="rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-slate-200">
+              No prominent artifacts detected.
+            </li>
+          )}
+        </ul>
+      </div>
     </div>
   );
 };
@@ -57,9 +103,11 @@ const MetricsColumn: React.FC<{
   signalQualityLabel?: string | null;
 }> = ({ insight, analysis, signalQualityLabel }) => {
   const { signalAnalysis } = analysis;
-  const dominantColor = getBrainStateColor(insight.brainState);
+  const dominantColor = getBrainStateColor(insight.brainState.classification);
   const bandEntries = Object.values(signalAnalysis.frequencyBands);
   const dominantBand = bandEntries.reduce((prev, current) => (current.power > prev.power ? current : prev));
+  const patternList = insight.patternsFound.length > 0 ? insight.patternsFound : ['No critical patterns flagged.'];
+  const summaryTable = insight.summaryTable;
 
   return (
     <div className="space-y-4 text-sm text-slate-100">
@@ -68,9 +116,7 @@ const MetricsColumn: React.FC<{
         <p className="text-xl font-semibold" style={{ color: dominantColor }}>
           {signalAnalysis.dominantFrequency.toFixed(2)} Hz
         </p>
-        {insight.brainState && (
-          <p className="text-xs text-slate-300">State: {insight.brainState}</p>
-        )}
+        <p className="text-xs text-slate-300">State: {insight.brainState.classification}</p>
         <p className="mt-1 text-xs text-slate-400">
           Strongest band: {dominantBand.name} ({dominantBand.range[0]}–{dominantBand.range[1]} Hz)
         </p>
@@ -82,6 +128,19 @@ const MetricsColumn: React.FC<{
           <p className="mt-1 text-xs text-emerald-200/80">Based on overall spectral power</p>
         </div>
       )}
+      <div className="space-y-2">
+        <h4 className="text-xs font-medium text-slate-300">Pattern detections</h4>
+        <ul className="space-y-2">
+          {patternList.map((pattern, index) => (
+            <li
+              key={index}
+              className="rounded-xl border border-white/10 bg-white/5 p-3 text-sm leading-relaxed text-slate-200"
+            >
+              {pattern}
+            </li>
+          ))}
+        </ul>
+      </div>
       <div className="space-y-2">
         <h4 className="text-xs font-medium text-slate-300">Band metrics</h4>
         <ul className="space-y-2">
@@ -96,12 +155,35 @@ const MetricsColumn: React.FC<{
           ))}
         </ul>
       </div>
-      <div className="space-y-2">
-        <h4 className="text-xs font-medium text-slate-300">Artifact notes</h4>
-        <p className="rounded-xl border border-white/10 bg-white/5 p-3 leading-relaxed text-slate-200">
-          {insight.anomalies.length > 0 ? 'See findings for potential artifacts.' : 'No artifact concerns detected.'}
-        </p>
-      </div>
+      {summaryTable && (
+        <div className="space-y-2">
+          <h4 className="text-xs font-medium text-slate-300">Summary table</h4>
+          <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5">
+            <table className="min-w-full divide-y divide-white/10 text-xs text-left text-slate-100">
+              <thead className="bg-white/5">
+                <tr>
+                  {summaryTable.headers.map((header) => (
+                    <th key={header} className="px-3 py-2 font-medium uppercase tracking-wide text-slate-200">
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {summaryTable.rows.map((row, rowIndex) => (
+                  <tr key={rowIndex}>
+                    {row.map((cell, cellIndex) => (
+                      <td key={`${rowIndex}-${cellIndex}`} className="px-3 py-2 text-slate-100">
+                        {cell}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
       <div className="space-y-1">
         <h4 className="text-xs font-medium text-slate-300">Total power</h4>
         <p className="rounded-xl border border-white/10 bg-white/5 p-3 font-mono text-xs text-cyan-200 shadow-[0_0_8px_rgba(0,200,255,0.5)]">
@@ -116,6 +198,17 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({ analysisResult, isVisible, o
   const [shouldRender, setShouldRender] = useState(false);
   const [isActive, setIsActive] = useState(false);
   const frameRef = useRef<number | null>(null);
+
+  const handleExportReport = () => {
+    if (!analysisResult?.aiInsight) return;
+    const blob = new Blob([analysisResult.aiInsight.rawReport], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `eeg-ai-report-${Date.now()}.md`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
 
   useEffect(() => {
     if (isVisible && analysisResult?.aiInsight) {
@@ -167,13 +260,22 @@ export const AIDrawer: React.FC<AIDrawerProps> = ({ analysisResult, isVisible, o
             <span className="text-base font-medium text-white">AI insights</span>
             <span className="text-xs text-slate-300">Automated neuroanalysis summary</span>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-md bg-blue-500 px-3 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-600"
-          >
-            Close
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleExportReport}
+              className="rounded-md border border-white/20 bg-white/10 px-3 py-1.5 text-sm font-semibold text-slate-100 transition hover:bg-white/20"
+            >
+              Export Full AI Report
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-md bg-blue-500 px-3 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-600"
+            >
+              Close
+            </button>
+          </div>
         </header>
         <div className="grid gap-4 text-left md:grid-cols-2">
           <FindingsColumn insight={analysisResult.aiInsight} />

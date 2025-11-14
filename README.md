@@ -194,7 +194,7 @@ The optimized production build will be in the `dist/` directory.
 1. **New Visualizations**: Add components in `src/components/`
 2. **Signal Processing**: Extend `src/utils/signalProcessing.ts`
 3. **Data Sources**: Modify `src/utils/dataGenerator.ts`
-4. **AI Analysis**: Customize prompts in `src/services/aiAnalysis.ts`
+4. **AI Analysis**: Customize prompts in `src/utils/aiEngine.ts`
 
 ## Limitations and Disclaimers
 

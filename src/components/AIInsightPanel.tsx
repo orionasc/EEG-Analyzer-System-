@@ -1,5 +1,5 @@
 import type { AIInsight } from '../types';
-import { getBrainStateColor } from '../services/aiAnalysis';
+import { getBrainStateColor } from '../utils/aiEngine';
 
 interface AIInsightPanelProps {
   insight: AIInsight;
@@ -23,10 +23,10 @@ export const AIInsightPanel: React.FC<AIInsightPanelProps> = ({ insight, isLoadi
     );
   }
 
-  const stateColor = getBrainStateColor(insight.brainState);
-  const anomalyCount = insight.anomalies?.length ?? 0;
-  const confidenceLevel = anomalyCount > 2 ? 'Medium Confidence' : 'High Confidence';
-  const confidenceBadge = anomalyCount > 2 ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700';
+  const stateColor = getBrainStateColor(insight.brainState.classification);
+  const hasArtifactFindings = insight.artifactFindings.length > 0;
+  const confidenceBadge = hasArtifactFindings ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700';
+  const confidenceLevel = insight.brainState.confidence ?? (hasArtifactFindings ? 'Moderate Confidence' : 'High Confidence');
 
   return (
     <div className="rounded-xl border border-slate-200/70 bg-white p-4 shadow-lg shadow-black/10">
@@ -40,46 +40,55 @@ export const AIInsightPanel: React.FC<AIInsightPanelProps> = ({ insight, isLoadi
       <div className="mb-4 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
         <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">Brain State</p>
         <div className="mt-2 flex flex-wrap items-center gap-3 text-[13px] font-semibold" style={{ color: stateColor }}>
-          {insight.brainState}
+          {insight.brainState.classification}
         </div>
-        {insight.sleepStage && (
-          <p className="mt-1 text-[11px] text-slate-500">Sleep Stage: {insight.sleepStage}</p>
+        {insight.brainState.confidence && (
+          <p className="mt-1 text-[11px] text-slate-500">Confidence: {insight.brainState.confidence}</p>
         )}
       </div>
 
       <div className="space-y-4 text-[12px] text-slate-600">
         <section className="space-y-2">
-          <h4 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Key Findings</h4>
+          <h4 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Pattern Detections</h4>
           <ul className="space-y-2">
-            {insight.anomalies.length > 0 ? (
-              insight.anomalies.map((item, idx) => (
-                <li key={idx} className="rounded-lg border border-slate-200/70 bg-white px-3 py-2 leading-snug text-slate-600">
-                  {item}
-                </li>
-              ))
-            ) : (
-              <li className="rounded-lg border border-slate-200/70 bg-white px-3 py-2 text-slate-500">
-                No significant anomalies detected across spectral bands.
+            {(insight.patternsFound.length ? insight.patternsFound : ['No critical patterns detected.']).map((item, idx) => (
+              <li key={idx} className="rounded-lg border border-slate-200/70 bg-white px-3 py-2 leading-snug text-slate-600">
+                {item}
               </li>
-            )}
+            ))}
           </ul>
         </section>
 
         <section className="space-y-2">
           <h4 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Clinical Relevance</h4>
-          <p className="rounded-lg border border-slate-200/70 bg-white px-3 py-2 leading-snug text-slate-600">{insight.summary}</p>
+          <p className="rounded-lg border border-slate-200/70 bg-white px-3 py-2 leading-snug text-slate-600">
+            {insight.deepAnalysis}
+          </p>
         </section>
 
-        {insight.recommendations && insight.recommendations.length > 0 && (
+        {insight.insights && insight.insights.length > 0 && (
           <section className="space-y-2">
             <h4 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Recommendations</h4>
             <div className="space-y-2">
-              {insight.recommendations.map((rec, idx) => (
+              {insight.insights.map((rec, idx) => (
                 <div key={idx} className="rounded-lg border border-emerald-200/70 bg-emerald-50 px-3 py-2 text-emerald-700">
                   {rec}
                 </div>
               ))}
             </div>
+          </section>
+        )}
+
+        {insight.artifactFindings.length > 0 && (
+          <section className="space-y-2">
+            <h4 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Artifact Detector</h4>
+            <ul className="space-y-2">
+              {insight.artifactFindings.map((item, idx) => (
+                <li key={idx} className="rounded-lg border border-slate-200/70 bg-white px-3 py-2 leading-snug text-slate-600">
+                  {item}
+                </li>
+              ))}
+            </ul>
           </section>
         )}
       </div>
