@@ -17,6 +17,10 @@ interface DatasetPanelProps {
   apiKey: string;
   onApiKeyChange: (value: string) => void;
   activeDatasetId: string | null;
+  userTargetQuery: string;
+  onUserTargetQueryChange: (value: string) => void;
+  compareToCohort: boolean;
+  onCompareToCohortChange: (value: boolean) => void;
 }
 
 export const DatasetPanel: React.FC<DatasetPanelProps> = ({
@@ -25,7 +29,11 @@ export const DatasetPanel: React.FC<DatasetPanelProps> = ({
   onUpload,
   apiKey,
   onApiKeyChange,
-  activeDatasetId
+  activeDatasetId,
+  userTargetQuery,
+  onUserTargetQueryChange,
+  compareToCohort,
+  onCompareToCohortChange
 }) => {
   const [isDragging, setIsDragging] = useState(false);
 
@@ -129,6 +137,28 @@ export const DatasetPanel: React.FC<DatasetPanelProps> = ({
             onChange={(event) => onApiKeyChange(event.target.value)}
             placeholder="Enter API key"
             className="w-full rounded-lg border border-white/10 bg-[#0b1220]/70 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-blue-400 focus:outline-none"
+          />
+        </section>
+        <section className="space-y-2">
+          <h4 className="text-xs font-medium text-slate-300">Optional: Ask Claude to analyze for a specific pattern or brain state</h4>
+          <input
+            type="text"
+            value={userTargetQuery}
+            onChange={(event) => onUserTargetQueryChange(event.target.value)}
+            placeholder="e.g. cognitive workload, meditative depth"
+            className="w-full rounded-lg border border-white/10 bg-[#0b1220]/70 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-blue-400 focus:outline-none"
+          />
+        </section>
+        <section className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-100">
+          <label htmlFor="cohort-toggle" className="font-medium text-slate-200">
+            Compare to typical EEG profiles
+          </label>
+          <input
+            id="cohort-toggle"
+            type="checkbox"
+            checked={compareToCohort}
+            onChange={(event) => onCompareToCohortChange(event.target.checked)}
+            className="h-4 w-4 rounded border-white/20 bg-transparent text-blue-500 focus:ring-blue-400"
           />
         </section>
       </div>

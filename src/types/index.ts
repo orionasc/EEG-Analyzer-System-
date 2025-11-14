@@ -46,12 +46,25 @@ export interface SignalAnalysis {
   spectrogram?: SpectrogramData;
 }
 
+export interface AISummaryTable {
+  headers: string[];
+  rows: string[][];
+}
+
 export interface AIInsight {
-  summary: string;
-  brainState: string;
-  sleepStage?: string;
-  anomalies: string[];
-  recommendations: string[];
+  brainState: {
+    classification: string;
+    confidence?: string;
+    description?: string;
+  };
+  deepAnalysis: string;
+  patternsFound: string[];
+  targetedAnalysis?: string;
+  insights: string[];
+  summaryTable: AISummaryTable | null;
+  artifactFindings: string[];
+  cohortComparison?: string;
+  rawReport: string;
 }
 
 export interface AnalysisResult {

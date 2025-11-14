@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { AnalysisResult, EEGData, FrequencyBands, SignalAnalysis, SpectrogramData } from './types';
 import { analyzeSignal } from './utils/signalProcessing';
-import { analyzeWithAI } from './services/aiAnalysis';
+import { runClaudeAnalysis } from './utils/aiEngine';
 import { getSampleDatasets } from './utils/dataGenerator';
 import { TopBar } from './components/layout/TopBar';
 import { TabsPane } from './components/layout/TabsPane';
@@ -74,6 +74,8 @@ function App() {
     bandpassEnabled: true,
     artifactRejection: false
   });
+  const [userTargetQuery, setUserTargetQuery] = useState('');
+  const [compareToCohort, setCompareToCohort] = useState(false);
 
   const sampleDatasets: SampleDataset[] = useMemo(() => {
     const samples = getSampleDatasets();
@@ -155,7 +157,23 @@ function App() {
 
     try {
       const { analysis, duration } = computeSignalAnalysis(activeDataset);
-      const aiInsight = await analyzeWithAI(analysis, apiKey);
+      const signalQuality = determineSignalQuality(analysis.totalPower);
+      const aiInsight = await runClaudeAnalysis({
+        rawData: analysis.rawSignal,
+        filteredData: analysis.filteredSignal,
+        fftResults: analysis.spectralData,
+        bandPowers: analysis.frequencyBands,
+        samplingRate: activeDataset.samplingRate,
+        duration: activeDataset.duration,
+        numChannels: activeDataset.channels.length,
+        userTargetQuery,
+        apiKey,
+        compareToCohort,
+        channelNames: activeDataset.channels.map((channel) => channel.name),
+        channelData: activeDataset.channels.map((channel) => channel.data),
+        artifactIndices: analysis.artifactIndices,
+        signalQualityEstimate: signalQuality
+      });
 
       setAnalysisResult({ signalAnalysis: analysis, aiInsight, processingTime: duration });
       setDrawerVisible(true);
@@ -277,6 +295,10 @@ function App() {
                 apiKey={apiKey}
                 onApiKeyChange={setApiKey}
                 activeDatasetId={selectedDatasetId}
+                userTargetQuery={userTargetQuery}
+                onUserTargetQueryChange={setUserTargetQuery}
+                compareToCohort={compareToCohort}
+                onCompareToCohortChange={setCompareToCohort}
               />
               <BandPanel
                 frequencyBands={pipelineState.bandpowers}
