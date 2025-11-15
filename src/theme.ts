@@ -21,6 +21,10 @@ export const themeTokens = {
     danger: '#ff6b6b',
     success: '#44d19d',
   },
+  spacing: {
+    horizontalGutter: '28px',
+    horizontalGutterCompact: '16px'
+  },
   typography: {
     fontFamily: "'Work Sans', 'Inter', 'Segoe UI', sans-serif",
     mono: "'IBM Plex Mono', 'SFMono-Regular', 'Menlo', monospace",
@@ -78,6 +82,8 @@ const cssVariableMap: Record<string, string> = {
   '--cl-radius-slab': themeTokens.radii.slab,
   '--cl-radius-block': themeTokens.radii.block,
   '--cl-radius-node': themeTokens.radii.node,
+  '--cl-h-gutter-default': themeTokens.spacing.horizontalGutter,
+  '--cl-h-gutter-compact': themeTokens.spacing.horizontalGutterCompact
 };
 
 export const applyThemeTokens = () => {

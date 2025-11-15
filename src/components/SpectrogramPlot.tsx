@@ -32,7 +32,7 @@ export const SpectrogramPlot: React.FC<SpectrogramPlotProps> = ({ spectrogram })
   };
 
   return (
-    <div className="rounded-2xl border border-[rgba(198,188,255,0.18)] bg-[rgba(17,13,28,0.78)] p-5 shadow-[0_24px_48px_rgba(8,4,18,0.45)]">
+    <div className="rounded-2xl border border-[rgba(198,188,255,0.18)] bg-[rgba(17,13,28,0.78)] px-[var(--cl-h-gutter)] py-5 shadow-[0_24px_48px_rgba(8,4,18,0.45)]">
       <div className="mb-3 flex items-center justify-between text-xs text-[rgba(214,205,196,0.7)]">
         <span>Time-frequency energy distribution</span>
         <span className="inline-flex items-center gap-2 rounded-full border border-[rgba(143,111,255,0.35)] bg-[rgba(143,111,255,0.12)] px-2.5 py-1 text-xs text-[rgba(143,111,255,0.88)]">

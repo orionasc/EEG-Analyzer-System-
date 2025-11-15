@@ -7,6 +7,15 @@
 @layer base {
   :root {
     color-scheme: dark;
+    --cl-h-gutter-default: 28px;
+    --cl-h-gutter-compact: 16px;
+    --cl-h-gutter: var(--cl-h-gutter-default);
+  }
+
+  @media (max-width: 640px) {
+    :root {
+      --cl-h-gutter: var(--cl-h-gutter-compact);
+    }
   }
 
   html {
@@ -112,7 +121,7 @@
     display: flex;
     flex-direction: column;
     isolation: isolate;
-    padding: clamp(2rem, 5vw, 4rem) clamp(1.5rem, 4vw, 3rem);
+    padding: clamp(2rem, 5vw, 4rem) var(--cl-h-gutter);
     max-width: 1680px;
     margin: 0 auto;
   }
@@ -191,11 +200,11 @@
     align-items: center;
     justify-content: space-between;
     gap: 1.25rem;
-    padding: 1.2rem 1.6rem 0.6rem;
+    padding: 1.2rem var(--cl-h-gutter) 0.6rem;
   }
 
   .cl-pane-body {
-    padding: 0 1.6rem 1.6rem;
+    padding: 0 var(--cl-h-gutter) 1.6rem;
   }
 
   .cl-text-primary {

@@ -53,7 +53,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   };
 
   return (
-    <div className="cl-slab cl-veil space-y-6 rounded-3xl border border-[rgba(198,188,255,0.2)] bg-[rgba(17,13,28,0.78)] p-6">
+    <div className="cl-slab cl-veil space-y-6 rounded-3xl border border-[rgba(198,188,255,0.2)] bg-[rgba(17,13,28,0.78)] px-[var(--cl-h-gutter)] py-6">
       <div className="cl-slab-edge" />
       <div className="flex items-center justify-between">
         <div>
@@ -151,7 +151,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
         </p>
       </div>
 
-      <div className="rounded-2xl border border-[rgba(198,188,255,0.18)] bg-[rgba(23,18,33,0.72)] p-4">
+      <div className="rounded-2xl border border-[rgba(198,188,255,0.18)] bg-[rgba(23,18,33,0.72)] px-[var(--cl-h-gutter)] py-4">
         <p className="text-xs font-medium uppercase tracking-[0.24em] text-[rgba(236,229,220,0.55)] mb-2">Claude API</p>
         <p className="text-xs text-[rgba(214,205,196,0.7)] mb-3">
           {apiKey

@@ -303,7 +303,7 @@ export const AIAnalysisDashboard = ({
   }, [bandpowers]);
 
   return (
-    <section className="cl-slab cl-veil space-y-6 rounded-3xl border border-[rgba(198,188,255,0.18)] bg-[rgba(13,10,22,0.82)] p-6 shadow-[0_30px_70px_rgba(7,4,15,0.6)]">
+    <section className="cl-slab cl-veil space-y-6 rounded-3xl border border-[rgba(198,188,255,0.18)] bg-[rgba(13,10,22,0.82)] px-[var(--cl-h-gutter)] py-6 shadow-[0_30px_70px_rgba(7,4,15,0.6)]">
       <div className="cl-slab-edge" />
       <SectionHeadline
         title="Claude AI Analysis"

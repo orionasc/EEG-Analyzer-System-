@@ -153,7 +153,7 @@ export const DatasetPanel: React.FC<DatasetPanelProps> = ({
           />
         </section>
 
-        <section className="flex items-center justify-between rounded-2xl border border-[rgba(198,188,255,0.18)] bg-[rgba(23,18,33,0.78)] px-4 py-3 text-xs text-[rgba(236,229,220,0.78)]">
+        <section className="flex items-center justify-between rounded-2xl border border-[rgba(198,188,255,0.18)] bg-[rgba(23,18,33,0.78)] px-[var(--cl-h-gutter)] py-3 text-xs text-[rgba(236,229,220,0.78)]">
           <label htmlFor="cohort-toggle" className="font-medium text-[rgba(249,245,236,0.85)]">
             Compare to typical EEG profiles
           </label>
