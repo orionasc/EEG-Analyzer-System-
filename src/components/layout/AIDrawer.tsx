@@ -152,6 +152,13 @@ export const AIDrawer = ({
                 <SummaryTable data={aiResults.summaryTableData} />
               </div>
             </div>
+
+            <div>
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-300">&lt;Raw Output&gt;</h3>
+              <div className="mt-2 rounded-2xl border border-white/10 bg-white/5 p-4">
+                <pre className="text-xs whitespace-pre-wrap text-slate-100">{aiResults.rawReport || 'No AI output available.'}</pre>
+              </div>
+            </div>
           </div>
         </section>
       </div>
