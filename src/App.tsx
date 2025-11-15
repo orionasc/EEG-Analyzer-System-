@@ -64,7 +64,13 @@ const emptyAIResults: AIResults = {
   patterns: '',
   insights: '',
   summaryTable: '',
-  rawReport: ''
+  rawReport: '',
+  targetedAnalysis: '',
+  artifactFindings: [],
+  cohortComparison: '',
+  summaryTableData: null,
+  confidence: '',
+  description: ''
 };
 
 function App() {
@@ -190,7 +196,7 @@ function App() {
     try {
       const { analysis } = computeSignalAnalysis(activeDataset);
       const signalQuality = determineSignalQuality(analysis.totalPower);
-      const aiInsight = await runClaudeAnalysis({
+      const aiResultsResponse = await runClaudeAnalysis({
         rawData: analysis.rawSignal,
         filteredData: analysis.filteredSignal,
         fftResults: analysis.spectralData,
@@ -207,7 +213,7 @@ function App() {
         signalQualityEstimate: signalQuality
       });
 
-      setAIResults(aiInsight);
+      setAIResults(aiResultsResponse);
       setAnalysisComplete(true);
     } catch (error) {
       console.error('Analysis error:', error);

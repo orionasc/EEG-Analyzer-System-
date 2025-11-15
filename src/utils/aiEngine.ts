@@ -465,42 +465,38 @@ export async function runClaudeAnalysis(params: RunClaudeAnalysisParams): Promis
   const summary = buildPromptSummary(params);
   const prompt = buildPrompt(summary, params);
   const apiKey = params.apiKey;
+  let reportOrSimulated = '';
 
   if (!apiKey) {
-    const simulated = createSimulatedReport(params, summary);
-    const parsed = parseClaudeResponse(simulated, summary);
-    return insightToAIResults(parsed);
-  }
+    reportOrSimulated = createSimulatedReport(params, summary);
+  } else {
+    try {
+      const client = new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
+      const response = await client.messages.create({
+        model: MODEL_NAME,
+        max_tokens: 1400,
+        temperature: 0.4,
+        messages: [
+          {
+            role: 'user',
+            content: prompt
+          }
+        ]
+      });
 
-  try {
-    const client = new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
-    const response = await client.messages.create({
-      model: MODEL_NAME,
-      max_tokens: 1400,
-      temperature: 0.4,
-      messages: [
-        {
-          role: 'user',
-          content: prompt
-        }
-      ]
-    });
-
-    const text = response.content.find((item) => item.type === 'text');
-    const report = text && 'text' in text ? text.text : '';
-    if (!report) {
-      const simulated = createSimulatedReport(params, summary);
-      const parsed = parseClaudeResponse(simulated, summary);
-      return insightToAIResults(parsed);
+      const text = response.content.find((item) => item.type === 'text');
+      reportOrSimulated = text && 'text' in text ? text.text : '';
+    } catch (error) {
+      console.error('Claude analysis failed', error);
     }
-    const parsed = parseClaudeResponse(report, summary);
-    return insightToAIResults(parsed);
-  } catch (error) {
-    console.error('Claude analysis failed', error);
-    const fallbackReport = createSimulatedReport(params, summary);
-    const parsed = parseClaudeResponse(fallbackReport, summary);
-    return insightToAIResults(parsed);
   }
+
+  if (!reportOrSimulated) {
+    reportOrSimulated = createSimulatedReport(params, summary);
+  }
+
+  const parsed = parseClaudeResponse(reportOrSimulated, summary);
+  return insightToAIResults(parsed);
 }
 
 const brainStatePalette: Record<string, string> = {
