@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import type { AIResults } from '../../types';
 
@@ -8,22 +7,9 @@ interface AIDrawerProps {
   onClose: () => void;
   aiLoading: boolean;
   analysisComplete: boolean;
-  signalQualityLabel?: string | null;
 }
 
-const splitLines = (value: string) =>
-  value
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean);
-
-const SummaryTable = ({
-  tableMarkdown,
-  data
-}: {
-  tableMarkdown: string;
-  data: AIResults['summaryTableData'];
-}) => {
+const SummaryTable = ({ data }: { data: AIResults['summaryTableData'] }) => {
   if (data && data.headers?.length && data.rows?.length) {
     return (
       <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5">
@@ -53,16 +39,8 @@ const SummaryTable = ({
     );
   }
 
-  if (tableMarkdown) {
-    return (
-      <pre className="whitespace-pre-wrap rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-slate-100">
-        {tableMarkdown}
-      </pre>
-    );
-  }
-
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-slate-300">Awaiting analysis...</div>
+    <p className="rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-slate-300">Awaiting analysis...</p>
   );
 };
 
@@ -71,22 +49,21 @@ export const AIDrawer = ({
   isOpen,
   onClose,
   aiLoading,
-  analysisComplete,
-  signalQualityLabel
+  analysisComplete
 }: AIDrawerProps) => {
   const body = typeof document !== 'undefined' ? document.body : null;
 
-  const patternItems = useMemo(() => splitLines(aiResults.patterns), [aiResults.patterns]);
-  const insightItems = useMemo(() => splitLines(aiResults.insights), [aiResults.insights]);
-  const keyFindingLines = useMemo(() => splitLines(aiResults.keyFindings), [aiResults.keyFindings]);
-
-  if (!body || !isOpen) {
+  if (!body) {
     return null;
   }
 
   return createPortal(
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[9999] flex justify-center">
-      <div className="pointer-events-auto w-full max-w-6xl transform px-4 pb-6 transition-transform duration-300 ease-out sm:px-6">
+    <div
+      className={`pointer-events-none fixed inset-x-0 bottom-0 z-[9999] flex justify-center transition-transform duration-300 ease-out ${
+        isOpen ? 'translate-y-0' : 'translate-y-full'
+      }`}
+    >
+      <div className="pointer-events-auto w-full max-w-4xl px-4 pb-6 sm:px-6">
         <section className="rounded-3xl border border-white/10 bg-slate-900/80 p-6 text-slate-100 shadow-2xl backdrop-blur-2xl">
           <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-white/30" />
           <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -133,98 +110,46 @@ export const AIDrawer = ({
             </div>
           </header>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-300">&lt;Brain State&gt;</h3>
-                <div className="mt-2 rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-lg font-semibold text-white">{aiResults.brainState || 'Awaiting analysis...'}</p>
-                  {(aiResults.confidence || aiResults.description || signalQualityLabel) && (
-                    <div className="mt-2 space-y-1 text-xs text-slate-300">
-                      {aiResults.confidence && <p>Confidence: {aiResults.confidence}</p>}
-                      {aiResults.description && <p>{aiResults.description}</p>}
-                      {signalQualityLabel && <p>Signal quality: {signalQualityLabel}</p>}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-300">&lt;Key Findings&gt;</h3>
-                <div className="mt-2 space-y-2">
-                  {keyFindingLines.length > 0 ? (
-                    keyFindingLines.map((line, index) => (
-                      <div
-                        key={index}
-                        className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm leading-relaxed text-slate-100"
-                      >
-                        {line}
-                      </div>
-                    ))
-                  ) : (
-                    <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300">
-                      Awaiting analysis...
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-300">&lt;Deep Technical Analysis&gt;</h3>
-                <div className="mt-2 rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                    {aiResults.deepAnalysis || 'Awaiting analysis...'}
-                  </div>
-                </div>
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-300">&lt;Brain State&gt;</h3>
+              <div className="mt-2 rounded-2xl border border-white/10 bg-white/5 p-4">
+                <p className="text-base font-semibold text-white">{aiResults.brainState || 'Awaiting analysis...'}</p>
               </div>
             </div>
 
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-300">&lt;Pattern Detections&gt;</h3>
-                <div className="mt-2 space-y-2">
-                  {patternItems.length > 0 ? (
-                    patternItems.map((item, index) => (
-                      <div
-                        key={index}
-                        className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm leading-relaxed text-slate-100"
-                      >
-                        {item}
-                      </div>
-                    ))
-                  ) : (
-                    <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300">
-                      Awaiting analysis...
-                    </div>
-                  )}
-                </div>
+            <div>
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-300">&lt;Key Findings&gt;</h3>
+              <div className="mt-2 rounded-2xl border border-white/10 bg-white/5 p-4">
+                <p className="whitespace-pre-line text-sm text-slate-100">{aiResults.keyFindings || 'Awaiting analysis...'}</p>
               </div>
+            </div>
 
-              <div>
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-300">&lt;Actionable Insights&gt;</h3>
-                <div className="mt-2 space-y-2">
-                  {insightItems.length > 0 ? (
-                    insightItems.map((item, index) => (
-                      <div
-                        key={index}
-                        className="rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-sm leading-relaxed text-emerald-100"
-                      >
-                        {item}
-                      </div>
-                    ))
-                  ) : (
-                    <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300">
-                      Awaiting analysis...
-                    </div>
-                  )}
-                </div>
+            <div>
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-300">&lt;Deep Technical Analysis&gt;</h3>
+              <div className="mt-2 rounded-2xl border border-white/10 bg-white/5 p-4">
+                <p className="whitespace-pre-line text-sm text-slate-100">{aiResults.deepAnalysis || 'Awaiting analysis...'}</p>
               </div>
+            </div>
 
-              <div>
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-300">&lt;Summary Table&gt;</h3>
-                <div className="mt-2">
-                  <SummaryTable tableMarkdown={aiResults.summaryTable} data={aiResults.summaryTableData} />
-                </div>
+            <div>
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-300">&lt;Pattern Detections&gt;</h3>
+              <div className="mt-2 rounded-2xl border border-white/10 bg-white/5 p-4">
+                <p className="whitespace-pre-line text-sm text-slate-100">{aiResults.patterns || 'Awaiting analysis...'}</p>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-300">&lt;Actionable Insights&gt;</h3>
+              <div className="mt-2 rounded-2xl border border-white/10 bg-white/5 p-4">
+                <p className="whitespace-pre-line text-sm text-slate-100">{aiResults.insights || 'Awaiting analysis...'}</p>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-300">&lt;Summary Table&gt;</h3>
+              <div className="mt-2">
+                <SummaryTable data={aiResults.summaryTableData} />
               </div>
             </div>
           </div>
