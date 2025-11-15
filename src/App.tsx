@@ -12,6 +12,7 @@ import { BandPanel } from './components/layout/BandPanel';
 import { FilterPanel } from './components/layout/FilterPanel';
 import { SummaryPanel } from './components/layout/SummaryPanel';
 import { AIDrawer } from './components/layout/AIDrawer';
+import { AIAnalysisDashboard } from './components/ai/AIAnalysisDashboard';
 
 type SampleDataset = {
   id: string;
@@ -95,6 +96,7 @@ function App() {
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
+  const [lastAnalysisAt, setLastAnalysisAt] = useState<Date | null>(null);
 
   const sampleDatasets: SampleDataset[] = useMemo(() => {
     const samples = getSampleDatasets();
@@ -165,6 +167,7 @@ function App() {
       setProcessingTime(null);
       setAIResults({ ...emptyAIResults });
       setAnalysisComplete(false);
+      setLastAnalysisAt(null);
       return;
     }
 
@@ -172,6 +175,7 @@ function App() {
     setAnalysisComplete(false);
     setAIResults({ ...emptyAIResults });
     setDrawerVisible(false);
+    setLastAnalysisAt(null);
   }, [activeDataset, computeSignalAnalysis]);
 
   useEffect(() => {
@@ -186,6 +190,7 @@ function App() {
     setAnalysisComplete(false);
     setAIResults({ ...emptyAIResults });
     setDrawerVisible(true);
+    setLastAnalysisAt(null);
 
     if (!apiKey) {
       setNotification('No Anthropic API key detected. Enter a key in the sidebar to unlock live Claude analysis. Running in simulated mode.');
@@ -215,6 +220,7 @@ function App() {
 
       setAIResults(aiResultsResponse);
       setAnalysisComplete(true);
+      setLastAnalysisAt(new Date());
     } catch (error) {
       console.error('Analysis error:', error);
       alert('An error occurred during analysis. Please try again.');
@@ -230,6 +236,7 @@ function App() {
     setDrawerVisible(false);
     setAIResults({ ...emptyAIResults });
     setAnalysisComplete(false);
+    setLastAnalysisAt(null);
   }, []);
 
   const handleLoadSample = (sample: SampleDataset) => {
@@ -249,6 +256,7 @@ function App() {
       setDrawerVisible(false);
       setAIResults({ ...emptyAIResults });
       setAnalysisComplete(false);
+      setLastAnalysisAt(null);
       return;
     }
 
@@ -363,6 +371,17 @@ function App() {
               />
             </Sidebar>
           </div>
+          <section className="mt-6">
+            <AIAnalysisDashboard
+              aiResults={aiResults}
+              isAnalyzing={aiLoading}
+              analysisComplete={analysisComplete}
+              signalQuality={signalQualityLabel}
+              bandpowers={pipelineState.bandpowers ?? null}
+              lastAnalyzedAt={lastAnalysisAt}
+              compareToCohort={compareToCohort}
+            />
+          </section>
         </main>
       </div>
 
