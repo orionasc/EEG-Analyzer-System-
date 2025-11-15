@@ -53,30 +53,35 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   };
 
   return (
-    <div className="rounded-3xl border border-white/40 bg-white/75 backdrop-blur shadow-[var(--shadow-md)] p-6 sm:p-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="cl-slab cl-veil space-y-6 rounded-3xl border border-[rgba(198,188,255,0.2)] bg-[rgba(17,13,28,0.78)] p-6">
+      <div className="cl-slab-edge" />
+      <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.35em] text-gray-400">Dataset Control</p>
-          <h3 className="text-xl font-semibold text-gray-900">Curate Your EEG Session</h3>
+          <p className="text-xs uppercase tracking-[0.35em] text-[rgba(236,229,220,0.55)]">Dataset Control</p>
+          <h3 className="text-xl font-semibold text-[rgba(249,245,236,0.98)]">Curate Your EEG Session</h3>
         </div>
-        <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-lg">🎛️</div>
+        <div className="hidden h-10 w-10 items-center justify-center rounded-full bg-[rgba(105,217,255,0.15)] text-lg text-[rgba(105,217,255,0.85)] sm:flex">
+          🎛️
+        </div>
       </div>
 
-      <div className="space-y-4">
-        <p className="text-xs font-medium uppercase text-gray-500 tracking-wide">Load Sample Dataset</p>
+      <div className="space-y-3">
+        <p className="text-xs font-medium uppercase tracking-[0.24em] text-[rgba(236,229,220,0.55)]">Load Sample Dataset</p>
         <div className="grid grid-cols-1 gap-3">
           {samples.map((sample, idx) => (
             <button
               key={sample.name}
               onClick={() => onLoadSample(sample.data)}
-              className="group relative flex items-center gap-4 rounded-2xl border border-gray-100 bg-white/90 px-4 py-3 text-left shadow-sm transition hover:-translate-y-1 hover:border-blue-300 hover:shadow-[var(--shadow-md)]"
+              className="group relative flex items-center gap-4 rounded-2xl border border-[rgba(198,188,255,0.18)] bg-[rgba(23,18,33,0.72)] px-4 py-3 text-left shadow-[0_18px_40px_rgba(7,4,15,0.45)] transition-transform duration-300 hover:-translate-y-[2px] hover:border-[rgba(105,217,255,0.35)]"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-lg">{sampleIcons[idx] ?? '🧠'}</div>
-              <div>
-                <p className="text-sm font-semibold text-gray-900">{sample.name}</p>
-                <p className="text-xs text-gray-500 leading-relaxed">{sample.description}</p>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[rgba(105,217,255,0.16)] text-lg">
+                {sampleIcons[idx] ?? '🧠'}
               </div>
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-base text-blue-400 opacity-0 transition group-hover:opacity-100">
+              <div>
+                <p className="text-sm font-semibold text-[rgba(249,245,236,0.95)]">{sample.name}</p>
+                <p className="text-xs text-[rgba(214,205,196,0.72)] leading-relaxed">{sample.description}</p>
+              </div>
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-base text-[rgba(105,217,255,0.85)] opacity-0 transition group-hover:opacity-100">
                 ↗
               </span>
             </button>
@@ -85,19 +90,19 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       </div>
 
       <div className="flex items-center gap-3 py-4">
-        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
-        <span className="text-[11px] font-medium uppercase tracking-[0.4em] text-gray-400">or</span>
-        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[rgba(198,188,255,0.2)] to-transparent" />
+        <span className="text-[11px] font-medium uppercase tracking-[0.4em] text-[rgba(236,229,220,0.55)]">or</span>
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[rgba(198,188,255,0.2)] to-transparent" />
       </div>
 
       <div className="space-y-3">
-        <p className="text-xs font-medium uppercase text-gray-500 tracking-wide">Upload CSV</p>
+        <p className="text-xs font-medium uppercase tracking-[0.24em] text-[rgba(236,229,220,0.55)]">Upload CSV</p>
         <label
           htmlFor="sidebar-upload"
           className={`relative flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-6 py-8 text-center transition ${
             isDragging
-              ? 'border-blue-400 bg-blue-50/60 text-blue-600 scale-[1.02]'
-              : 'border-gray-200 bg-gray-50/60 text-gray-500 hover:border-blue-300 hover:bg-blue-50/40'
+              ? 'border-[rgba(105,217,255,0.6)] bg-[rgba(105,217,255,0.12)] text-[rgba(105,217,255,0.9)] scale-[1.02] shadow-[0_0_18px_rgba(105,217,255,0.35)]'
+              : 'border-[rgba(198,188,255,0.3)] bg-[rgba(23,18,33,0.6)] text-[rgba(214,205,196,0.7)] hover:border-[rgba(105,217,255,0.45)] hover:bg-[rgba(23,18,33,0.7)]'
           }`}
           onDragOver={(event) => {
             event.preventDefault();
@@ -123,44 +128,32 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
           />
           <div className="text-2xl">📁</div>
           <div>
-            <p className="text-sm font-semibold text-gray-700">Drop CSV file here</p>
-            <p className="text-xs text-gray-500">or click to browse</p>
+            <p className="text-sm font-semibold text-[rgba(249,245,236,0.95)]">Drop CSV file here</p>
+            <p className="text-xs text-[rgba(214,205,196,0.7)]">or click to browse</p>
           </div>
-          <p className="text-[11px] text-gray-400">Expected: Time,Ch1,Ch2,...</p>
+          <p className="text-[11px] text-[rgba(236,229,220,0.55)]">Expected: Time,Ch1,Ch2,...</p>
         </label>
       </div>
 
-      <div className="mt-6">
+      <div>
         <button
           onClick={onAnalyze}
           disabled={!hasData || isAnalyzing}
-          className="flex w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 px-6 py-4 text-base font-semibold text-white shadow-[var(--shadow-colored)] transition hover:shadow-[var(--shadow-xl)] disabled:cursor-not-allowed disabled:opacity-60"
+          className="cl-node-button flex w-full items-center justify-center gap-3 py-3 text-base disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isAnalyzing ? (
-            <>
-              <span className="relative flex h-5 w-5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/70 opacity-75"></span>
-                <span className="relative inline-flex h-5 w-5 rounded-full bg-white/90"></span>
-              </span>
-              Analyzing EEG Data...
-            </>
-          ) : (
-            <>
-              <span className="text-lg">🚀</span>
-              Analyze EEG Data
-            </>
-          )}
+          <span className="cl-node-spark" aria-hidden />
+          {isAnalyzing ? 'Analyzing EEG Data...' : 'Analyze EEG Data'}
         </button>
-        <p className="mt-3 text-[11px] text-gray-400">
+        <p className="mt-3 text-[11px] text-[rgba(214,205,196,0.65)]">
           {hasData
             ? 'Ready to synthesize spectral insights using AI co-pilot.'
             : 'Load a curated sample or upload raw EEG to enable the analysis engine.'}
         </p>
       </div>
 
-      <div className="mt-6 rounded-2xl border border-gray-100 bg-white/80 p-4">
-        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Claude API</p>
-        <p className="text-xs text-gray-500 mb-3">
+      <div className="rounded-2xl border border-[rgba(198,188,255,0.18)] bg-[rgba(23,18,33,0.72)] p-4">
+        <p className="text-xs font-medium uppercase tracking-[0.24em] text-[rgba(236,229,220,0.55)] mb-2">Claude API</p>
+        <p className="text-xs text-[rgba(214,205,196,0.7)] mb-3">
           {apiKey
             ? 'Secure connection active. Claude intelligence will enhance interpretations.'
             : 'No API key detected. Using built-in simulated insights.'}
@@ -174,7 +167,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
               input.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
           }}
-          className="inline-flex items-center gap-2 rounded-xl border border-blue-100 bg-blue-50/70 px-4 py-2 text-xs font-semibold text-blue-600 hover:border-blue-200 hover:bg-blue-100"
+          className="inline-flex items-center gap-2 rounded-xl border border-[rgba(105,217,255,0.35)] bg-[rgba(105,217,255,0.12)] px-4 py-2 text-xs font-semibold text-[rgba(105,217,255,0.9)] hover:border-[rgba(105,217,255,0.5)]"
         >
           Manage API Key
           <span className="text-sm">↗</span>

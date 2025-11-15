@@ -1,16 +1,17 @@
 import Plot from 'react-plotly.js';
 import type { SignalAnalysis } from '../types';
+import { themeTokens } from '../theme';
 
 interface PowerSpectrumPlotProps {
   analysis: SignalAnalysis;
 }
 
 const bandStyles = [
-  { label: 'Delta', range: [0.5, 4], color: 'rgba(139, 92, 246, 0.08)' },
-  { label: 'Theta', range: [4, 8], color: 'rgba(59, 130, 246, 0.08)' },
-  { label: 'Alpha', range: [8, 13], color: 'rgba(20, 184, 166, 0.08)' },
-  { label: 'Beta', range: [13, 30], color: 'rgba(16, 185, 129, 0.08)' },
-  { label: 'Gamma', range: [30, 50], color: 'rgba(245, 158, 11, 0.08)' }
+  { label: 'Delta', range: [0.5, 4], color: 'rgba(143, 111, 255, 0.08)' },
+  { label: 'Theta', range: [4, 8], color: 'rgba(105, 217, 255, 0.08)' },
+  { label: 'Alpha', range: [8, 13], color: 'rgba(123, 179, 255, 0.08)' },
+  { label: 'Beta', range: [13, 30], color: 'rgba(255, 182, 72, 0.08)' },
+  { label: 'Gamma', range: [30, 50], color: 'rgba(255, 193, 152, 0.08)' }
 ];
 
 export const PowerSpectrumPlot: React.FC<PowerSpectrumPlotProps> = ({ analysis }) => {
@@ -28,12 +29,11 @@ export const PowerSpectrumPlot: React.FC<PowerSpectrumPlotProps> = ({ analysis }
     mode: 'lines' as const,
     fill: 'tozeroy' as const,
     line: {
-      color: 'rgba(59, 130, 246, 1)',
-      width: 2.6
+      color: themeTokens.palette.pathwayBlue,
+      width: 2.4
     },
-    fillcolor: 'rgba(59, 130, 246, 0.15)',
-    hovertemplate:
-      '<b>%{x:.1f} Hz</b><br>Power: %{y:.3f}<extra></extra>'
+    fillcolor: 'rgba(106, 146, 255, 0.18)',
+    hovertemplate: '<b>%{x:.1f} Hz</b><br>Power: %{y:.3f}<extra></extra>'
   };
 
   const shapes = [
@@ -57,7 +57,7 @@ export const PowerSpectrumPlot: React.FC<PowerSpectrumPlotProps> = ({ analysis }
       y0: 0,
       y1: 1,
       line: {
-        color: 'rgba(14, 165, 233, 0.85)',
+        color: 'rgba(105, 217, 255, 0.85)',
         width: 2,
         dash: 'dash' as const
       }
@@ -69,24 +69,24 @@ export const PowerSpectrumPlot: React.FC<PowerSpectrumPlotProps> = ({ analysis }
     y: 1.05,
     text: band.label,
     showarrow: false,
-    font: { size: 11, color: '#475569' }
+    font: { size: 11, color: 'rgba(236,229,220,0.6)' }
   }));
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-black/20 p-4 shadow-[0_1px_4px_rgba(0,0,0,0.3)] backdrop-blur-sm">
-      <div className="mb-3 flex items-center justify-between text-xs text-slate-400">
+    <div className="rounded-2xl border border-[rgba(198,188,255,0.18)] bg-[rgba(17,13,28,0.78)] p-5 shadow-[0_24px_48px_rgba(8,4,18,0.45)]">
+      <div className="mb-3 flex items-center justify-between text-xs text-[rgba(214,205,196,0.7)]">
         <span>Real-time spectral energy profile</span>
-        <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-blue-200">
-          <span className="h-1.5 w-1.5 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(0,200,255,0.5)]" aria-hidden />
+        <span className="inline-flex items-center gap-2 rounded-full border border-[rgba(105,217,255,0.3)] bg-[rgba(105,217,255,0.12)] px-2.5 py-1 text-xs text-[rgba(105,217,255,0.9)]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[rgba(105,217,255,0.8)] shadow-[0_0_8px_rgba(105,217,255,0.6)]" aria-hidden />
           PSD curve
         </span>
       </div>
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-white/10 pb-3">
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-[rgba(198,188,255,0.14)] pb-3">
         <div className="space-y-1">
-          <h3 className="text-base font-medium text-white">Power spectrum</h3>
-          <p className="text-xs text-slate-300">Frequency distribution with band annotations</p>
+          <h3 className="text-base font-semibold text-[rgba(249,245,236,0.95)]">Power spectrum</h3>
+          <p className="text-xs text-[rgba(214,205,196,0.7)]">Frequency distribution with band annotations</p>
         </div>
-        <div className="rounded-lg border border-blue-400/30 bg-blue-500/10 px-3 py-2 text-xs text-blue-100">
+        <div className="rounded-lg border border-[rgba(105,217,255,0.35)] bg-[rgba(105,217,255,0.12)] px-3 py-2 text-xs text-[rgba(105,217,255,0.9)]">
           Dominant: {dominantFrequency.toFixed(2)} Hz
         </div>
       </div>
@@ -98,21 +98,21 @@ export const PowerSpectrumPlot: React.FC<PowerSpectrumPlotProps> = ({ analysis }
           paper_bgcolor: 'rgba(255,255,255,0)',
           plot_bgcolor: 'rgba(255,255,255,0)',
           xaxis: {
-            title: { text: 'Frequency (Hz)', font: { size: 12, color: '#94a3b8' } },
+            title: { text: 'Frequency (Hz)', font: { size: 12, color: 'rgba(214,205,196,0.78)' } },
             range: [0, 60],
-            gridcolor: 'rgba(148, 163, 184, 0.2)',
-            tickfont: { size: 11, color: '#cbd5f5' }
+            gridcolor: 'rgba(115, 132, 181, 0.2)',
+            tickfont: { size: 11, color: 'rgba(236,229,220,0.75)' }
           },
           yaxis: {
-            title: { text: 'Power', font: { size: 12, color: '#94a3b8' } },
-            gridcolor: 'rgba(148, 163, 184, 0.2)',
-            tickfont: { size: 11, color: '#cbd5f5' }
+            title: { text: 'Power', font: { size: 12, color: 'rgba(214,205,196,0.78)' } },
+            gridcolor: 'rgba(115, 132, 181, 0.2)',
+            tickfont: { size: 11, color: 'rgba(236,229,220,0.75)' }
           },
           shapes,
           annotations,
           hoverlabel: {
-            bgcolor: 'rgba(15,23,42,0.9)',
-            font: { size: 11, color: '#f8fafc' }
+            bgcolor: 'rgba(17,14,26,0.9)',
+            font: { size: 11, color: 'rgba(249,245,236,0.96)' }
           },
           showlegend: false,
           transition: {
