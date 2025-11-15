@@ -13,6 +13,9 @@ import { FilterPanel } from './components/layout/FilterPanel';
 import { SummaryPanel } from './components/layout/SummaryPanel';
 import { AIDrawer } from './components/layout/AIDrawer';
 import { AIAnalysisDashboard } from './components/ai/AIAnalysisDashboard';
+import { NeuralActivationLayer } from './components/visual/NeuralActivationLayer';
+import { NeuralDivider } from './components/common/NeuralDivider';
+import type { ActivationLevel } from './theme';
 
 type SampleDataset = {
   id: string;
@@ -178,10 +181,6 @@ function App() {
     setLastAnalysisAt(null);
   }, [activeDataset, computeSignalAnalysis]);
 
-  useEffect(() => {
-    console.log('AI RESULTS:', aiResults);
-  }, [aiResults]);
-
   const handleAnalyze = async () => {
     if (!activeDataset) return;
 
@@ -306,83 +305,92 @@ function App() {
   const isDrawerOpen = Boolean(isDrawerVisible);
   const canAnalyze = Boolean(activeDataset);
 
+  const activationLevel: ActivationLevel = isAnalyzing ? 'processing' : signalAnalysis ? 'engaged' : 'idle';
+  const signalMetric = signalAnalysis ? Math.min(1, signalAnalysis.totalPower / 12) : 0;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0e1117] to-[#1a1f25] text-slate-200">
+    <div className="cl-app-shell">
+      <NeuralActivationLayer level={activationLevel} signalMetric={signalMetric} />
       <div
-        className={`mx-auto flex min-h-screen max-w-[1600px] flex-col gap-6 px-6 py-8 transition-transform duration-300 ease-out lg:px-12 ${
-          isDrawerOpen ? 'scale-[0.99]' : 'scale-100'
+        className={`cl-primary-surface transition-transform duration-500 ease-out ${
+          isDrawerOpen ? 'scale-[0.995]' : 'scale-100'
         }`}
       >
-        {notification && (
-          <div className="mb-4 rounded-xl border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-100 shadow-[0_1px_8px_rgba(255,193,7,0.2)]">
-            {notification}
-          </div>
-        )}
-        <TopBar
-          title="EEG Signal Analyzer"
-          subtitle="Neuroscience workspace"
-          datasetOptions={datasetOptions}
-          selectedDatasetId={selectedDatasetId}
-          onDatasetChange={handleDatasetChange}
-          samplingRate={samplingRate}
-          channelCount={channelCount}
-          datasetDuration={datasetDuration}
-          activeDatasetLabel={activeDatasetMeta.label}
-          activeDatasetDescription={activeDatasetMeta.description}
-          isClaudeConnected={Boolean(apiKey)}
-          onAnalyze={handleAnalyze}
-          isAnalyzing={isAnalyzing}
-          canAnalyze={canAnalyze}
-        />
+        <div className="cl-pane-body pt-8 lg:pt-10">
+          {notification && (
+            <div className="mb-5 rounded-2xl border border-[rgba(255,182,72,0.4)] bg-[rgba(42,33,20,0.72)] px-5 py-4 text-sm text-[rgba(255,236,209,0.9)] shadow-[0_20px_40px_rgba(255,182,72,0.15)]">
+              {notification}
+            </div>
+          )}
 
-        <main className="flex flex-1 flex-col">
-          <div className="flex h-full flex-col gap-6 xl:flex-row">
-            <section className="flex min-h-[420px] flex-1 flex-col">
-              <TabsPane tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab}>
-                <PlotArea activeTab={activeTab} eegData={activeDataset} signalAnalysis={signalAnalysis} />
-              </TabsPane>
-            </section>
-            <Sidebar className="w-full xl:w-80">
-              <DatasetPanel
-                samples={sampleDatasets}
-                onLoadSample={handleLoadSample}
-                onUpload={handleUpload}
-                apiKey={apiKey}
-                onApiKeyChange={setApiKey}
-                activeDatasetId={selectedDatasetId}
-                userTargetQuery={userTargetQuery}
-                onUserTargetQueryChange={setUserTargetQuery}
+          <TopBar
+            title="EEG Signal Analyzer"
+            subtitle="Claude x neuroscience cognition stack"
+            datasetOptions={datasetOptions}
+            selectedDatasetId={selectedDatasetId}
+            onDatasetChange={handleDatasetChange}
+            samplingRate={samplingRate}
+            channelCount={channelCount}
+            datasetDuration={datasetDuration}
+            activeDatasetLabel={activeDatasetMeta.label}
+            activeDatasetDescription={activeDatasetMeta.description}
+            isClaudeConnected={Boolean(apiKey)}
+            onAnalyze={handleAnalyze}
+            isAnalyzing={isAnalyzing}
+            canAnalyze={canAnalyze}
+          />
+
+          <NeuralDivider className="mt-6" curvature={0.4} opacity={0.65} />
+
+          <main className="mt-6 flex flex-1 flex-col">
+            <div className="flex h-full flex-col gap-6 xl:flex-row">
+              <section className="flex min-h-[420px] flex-1 flex-col">
+                <TabsPane tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab}>
+                  <PlotArea activeTab={activeTab} eegData={activeDataset} signalAnalysis={signalAnalysis} />
+                </TabsPane>
+              </section>
+              <Sidebar className="w-full xl:w-[320px]">
+                <DatasetPanel
+                  samples={sampleDatasets}
+                  onLoadSample={handleLoadSample}
+                  onUpload={handleUpload}
+                  apiKey={apiKey}
+                  onApiKeyChange={setApiKey}
+                  activeDatasetId={selectedDatasetId}
+                  userTargetQuery={userTargetQuery}
+                  onUserTargetQueryChange={setUserTargetQuery}
+                  compareToCohort={compareToCohort}
+                  onCompareToCohortChange={setCompareToCohort}
+                />
+                <BandPanel
+                  frequencyBands={pipelineState.bandpowers}
+                  dominantFrequency={signalAnalysis?.dominantFrequency ?? null}
+                />
+                <FilterPanel
+                  bandpassEnabled={filterSettings.bandpassEnabled}
+                  artifactRejectionEnabled={filterSettings.artifactRejection}
+                  onChange={handleFilterSettingsChange}
+                />
+                <SummaryPanel
+                  processingTime={processingTime}
+                  signalQualityLabel={signalQualityLabel}
+                  fftSampleCount={fftSampleCount}
+                />
+              </Sidebar>
+            </div>
+            <section className="mt-6">
+              <AIAnalysisDashboard
+                aiResults={aiResults}
+                isAnalyzing={aiLoading}
+                analysisComplete={analysisComplete}
+                signalQuality={signalQualityLabel}
+                bandpowers={pipelineState.bandpowers ?? null}
+                lastAnalyzedAt={lastAnalysisAt}
                 compareToCohort={compareToCohort}
-                onCompareToCohortChange={setCompareToCohort}
               />
-              <BandPanel
-                frequencyBands={pipelineState.bandpowers}
-                dominantFrequency={signalAnalysis?.dominantFrequency ?? null}
-              />
-              <FilterPanel
-                bandpassEnabled={filterSettings.bandpassEnabled}
-                artifactRejectionEnabled={filterSettings.artifactRejection}
-                onChange={handleFilterSettingsChange}
-              />
-              <SummaryPanel
-                processingTime={processingTime}
-                signalQualityLabel={signalQualityLabel}
-                fftSampleCount={fftSampleCount}
-              />
-            </Sidebar>
-          </div>
-          <section className="mt-6">
-            <AIAnalysisDashboard
-              aiResults={aiResults}
-              isAnalyzing={aiLoading}
-              analysisComplete={analysisComplete}
-              signalQuality={signalQualityLabel}
-              bandpowers={pipelineState.bandpowers ?? null}
-              lastAnalyzedAt={lastAnalysisAt}
-              compareToCohort={compareToCohort}
-            />
-          </section>
-        </main>
+            </section>
+          </main>
+        </div>
       </div>
 
       <AIDrawer

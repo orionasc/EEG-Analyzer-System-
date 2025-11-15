@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { NeuralDivider } from '../common/NeuralDivider';
 
 interface CollapsibleSectionProps {
   title: string;
@@ -62,31 +63,29 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
 
   return (
     <section
-      className={`rounded-2xl border border-white/10 bg-white/5 text-slate-200 shadow-[0_1px_4px_rgba(0,0,0,0.3)] backdrop-blur-sm transition-colors ${
-        className ?? ''
-      }`.trim()}
+      className={`cl-slab cl-veil relative overflow-hidden text-[0.92rem] ${className ?? ''}`.trim()}
     >
+      <div className="cl-slab-edge" />
       <button
         type="button"
         onClick={toggle}
-        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-sm font-medium text-slate-100"
+        className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left text-[rgba(249,245,236,0.92)]"
         aria-expanded={isOpen}
       >
-        <span>{title}</span>
+        <span className="text-sm font-semibold tracking-[0.08em] uppercase text-[rgba(236,229,220,0.76)]">{title}</span>
         <span
-          className={`flex h-5 w-5 items-center justify-center rounded-full border border-white/10 bg-white/10 text-xs text-slate-200 transition-transform duration-200 ${
-            arrowRotation
-          }`}
+          className={`flex h-6 w-6 items-center justify-center rounded-full border border-[rgba(198,188,255,0.2)] bg-[rgba(24,19,34,0.8)] text-xs text-[rgba(249,245,236,0.85)] transition-transform duration-300 ${arrowRotation}`}
         >
           ➜
         </span>
       </button>
+      <NeuralDivider curvature={0.3} opacity={0.35} />
       <div
         ref={contentRef}
-        className={`overflow-hidden transition-[max-height] duration-300 ease-in-out ${contentClassName ?? ''}`.trim()}
+        className={`overflow-hidden transition-[max-height] duration-[400ms] ease-in-out ${contentClassName ?? ''}`.trim()}
         style={{ maxHeight }}
       >
-        <div className="px-4 pb-4">{children}</div>
+        <div className="px-5 pb-5 text-[rgba(236,229,220,0.78)]">{children}</div>
       </div>
     </section>
   );

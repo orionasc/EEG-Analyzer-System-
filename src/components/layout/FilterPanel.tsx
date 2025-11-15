@@ -22,23 +22,23 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
 
   return (
     <CollapsibleSection title="Filters" contentClassName="text-sm">
-      <div className="space-y-2">
-        <label className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-100 transition-colors hover:bg-white/10">
-          <span>Bandpass filter</span>
+      <div className="space-y-3">
+        <label className="flex items-center justify-between rounded-2xl border border-[rgba(198,188,255,0.2)] bg-[rgba(21,16,32,0.72)] px-4 py-3 text-sm text-[rgba(236,229,220,0.85)]">
+          <span className="font-medium text-[rgba(249,245,236,0.9)]">Bandpass filter</span>
           <input
             type="checkbox"
             checked={bandpassEnabled}
             onChange={(event) => handleBandpassChange(event.target.checked)}
-            className="h-4 w-4 accent-blue-400"
+            className="cl-toggle"
           />
         </label>
-        <label className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-100 transition-colors hover:bg-white/10">
-          <span>Artifact rejection</span>
+        <label className="flex items-center justify-between rounded-2xl border border-[rgba(198,188,255,0.2)] bg-[rgba(21,16,32,0.72)] px-4 py-3 text-sm text-[rgba(236,229,220,0.85)]">
+          <span className="font-medium text-[rgba(249,245,236,0.9)]">Artifact rejection</span>
           <input
             type="checkbox"
             checked={artifactRejectionEnabled}
             onChange={(event) => handleArtifactChange(event.target.checked)}
-            className="h-4 w-4 accent-blue-400"
+            className="cl-toggle"
           />
         </label>
       </div>

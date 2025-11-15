@@ -22,23 +22,26 @@ const RawDataView: React.FC<{ eegData: EEGData }> = ({ eegData }) => {
   }
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-slate-200 shadow-[0_1px_4px_rgba(0,0,0,0.3)] backdrop-blur-sm">
-      <div className="mb-3 border-b border-white/10 pb-2">
-        <p className="text-xs text-slate-400">Live sample snapshot</p>
-        <h3 className="text-sm font-medium text-white">Raw Data Preview</h3>
+    <div className="h-full rounded-2xl border border-[rgba(198,188,255,0.18)] bg-[rgba(18,14,30,0.72)] p-5 text-[rgba(236,229,220,0.78)] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3 border-b border-[rgba(198,188,255,0.14)] pb-3">
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.24em] text-[rgba(236,229,220,0.5)]">Live sample snapshot</p>
+          <h3 className="text-base font-semibold text-[rgba(249,245,236,0.95)]">Raw Data Preview</h3>
+        </div>
+        <span className="cl-status-chip">Stable</span>
       </div>
       <table className="w-full border-collapse text-xs">
-        <thead className="text-left text-xs text-slate-400">
-          <tr className="border-b border-white/10">
-            <th className="pb-1 font-medium">Time (s)</th>
-            <th className="pb-1 font-medium">{channel.name}</th>
+        <thead className="text-left text-[rgba(214,205,196,0.6)]">
+          <tr className="border-b border-[rgba(198,188,255,0.14)]">
+            <th className="pb-2 font-medium">Time (s)</th>
+            <th className="pb-2 font-medium">{channel.name}</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-white/5 text-xs text-slate-200">
+        <tbody className="divide-y divide-[rgba(198,188,255,0.1)]">
           {rows.map((row, idx) => (
-            <tr key={idx} className="transition-colors hover:bg-white/5">
-              <td className="py-1 text-slate-300">{row.time.toFixed(3)}</td>
-              <td className="py-1 text-slate-200">{row.value.toFixed(4)}</td>
+            <tr key={idx} className="transition-colors hover:bg-[rgba(105,217,255,0.06)]">
+              <td className="py-2 text-[rgba(214,205,196,0.75)]">{row.time.toFixed(3)}</td>
+              <td className="py-2 text-[rgba(236,229,220,0.9)]">{row.value.toFixed(4)}</td>
             </tr>
           ))}
         </tbody>
@@ -48,20 +51,20 @@ const RawDataView: React.FC<{ eegData: EEGData }> = ({ eegData }) => {
 };
 
 const SpectrogramPlaceholder: React.FC = () => (
-  <div className="flex h-full items-center justify-center rounded-2xl border border-white/10 bg-black/20 p-6 text-sm text-slate-300 shadow-[0_1px_4px_rgba(0,0,0,0.3)] backdrop-blur-sm">
+  <div className="flex h-full items-center justify-center rounded-2xl border border-[rgba(198,188,255,0.18)] bg-[rgba(18,14,30,0.7)] p-6 text-sm text-[rgba(214,205,196,0.65)]">
     Spectrogram will render after the signal is processed.
   </div>
 );
 
 const EmptyState: React.FC<{ message: string }> = ({ message }) => (
-  <div className="flex h-full items-center justify-center rounded-2xl border border-white/10 bg-black/20 p-6 text-sm text-slate-300 shadow-[0_1px_4px_rgba(0,0,0,0.3)] backdrop-blur-sm">
+  <div className="flex h-full items-center justify-center rounded-2xl border border-[rgba(198,188,255,0.18)] bg-[rgba(18,14,30,0.7)] p-6 text-sm text-[rgba(214,205,196,0.65)]">
     {message}
   </div>
 );
 
 const TabPanel: React.FC<{ isActive: boolean; children: React.ReactNode }> = ({ isActive, children }) => (
   <div
-    className={`h-full transition-all duration-300 ${
+    className={`h-full transition-all duration-[400ms] ${
       isActive ? 'relative opacity-100' : 'absolute inset-0 -z-10 opacity-0 pointer-events-none'
     }`.trim()}
     aria-hidden={!isActive}

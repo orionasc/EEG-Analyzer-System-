@@ -34,10 +34,10 @@ export const DataUploader: React.FC<DataUploaderProps> = ({ onDataLoaded }) => {
   );
 
   return (
-    <div className="w-full bg-white rounded-lg border border-gray-200 p-6">
-      <h3 className="text-base font-semibold text-gray-900 mb-5">Upload EEG Data</h3>
+    <div className="rounded-2xl border border-[rgba(198,188,255,0.2)] bg-[rgba(17,13,28,0.78)] p-6 text-[rgba(236,229,220,0.78)] shadow-[0_24px_48px_rgba(8,4,18,0.45)]">
+      <h3 className="mb-5 text-base font-semibold text-[rgba(249,245,236,0.95)]">Upload EEG Data</h3>
 
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 hover:bg-gray-50 transition-colors">
+      <div className="rounded-2xl border-2 border-dashed border-[rgba(198,188,255,0.35)] bg-[rgba(23,18,33,0.6)] p-8 text-center transition hover:border-[rgba(105,217,255,0.45)] hover:bg-[rgba(23,18,33,0.72)]">
         <input
           type="file"
           accept=".csv"
@@ -47,10 +47,10 @@ export const DataUploader: React.FC<DataUploaderProps> = ({ onDataLoaded }) => {
         />
         <label
           htmlFor="file-upload"
-          className="cursor-pointer flex flex-col items-center space-y-3"
+          className="flex cursor-pointer flex-col items-center space-y-3 text-[rgba(236,229,220,0.78)]"
         >
           <svg
-            className="w-8 h-8 text-gray-400"
+            className="h-8 w-8 text-[rgba(105,217,255,0.8)]"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -63,19 +63,17 @@ export const DataUploader: React.FC<DataUploaderProps> = ({ onDataLoaded }) => {
             />
           </svg>
           <div>
-            <span className="text-sm text-gray-700 font-medium block">
+            <span className="block text-sm font-medium text-[rgba(249,245,236,0.95)]">
               Click to upload or drag and drop
             </span>
-            <span className="text-xs text-gray-500 mt-1 block">CSV files only</span>
+            <span className="mt-1 block text-xs text-[rgba(214,205,196,0.7)]">CSV files only</span>
           </div>
         </label>
       </div>
 
-      <div className="mt-4 bg-gray-50 rounded-lg p-3 border border-gray-200">
-        <p className="text-xs font-medium text-gray-700 mb-2">
-          Expected CSV format:
-        </p>
-        <code className="block bg-white p-2.5 rounded text-xs text-gray-600 font-mono border border-gray-200">
+      <div className="mt-4 rounded-2xl border border-[rgba(198,188,255,0.18)] bg-[rgba(23,18,33,0.72)] p-3">
+        <p className="mb-2 text-xs font-medium text-[rgba(236,229,220,0.55)]">Expected CSV format:</p>
+        <code className="block rounded border border-[rgba(198,188,255,0.18)] bg-[rgba(15,12,24,0.82)] p-3 text-xs font-mono text-[rgba(236,229,220,0.75)]">
           Time,Channel1,Channel2,...<br />
           0.000,1.23,4.56,...<br />
           0.004,1.45,4.23,...
