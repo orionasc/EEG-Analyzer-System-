@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { AnalysisResult, EEGData, FrequencyBands, SignalAnalysis, SpectrogramData } from './types';
+import type { AIResults, EEGData, FrequencyBands, SignalAnalysis, SpectrogramData } from './types';
 import { analyzeSignal } from './utils/signalProcessing';
 import { runClaudeAnalysis } from './utils/aiEngine';
 import { getSampleDatasets } from './utils/dataGenerator';
@@ -57,9 +57,18 @@ const tabs = [
   { id: 'raw-data', label: 'Raw Data' }
 ];
 
+const emptyAIResults: AIResults = {
+  brainState: '',
+  keyFindings: '',
+  deepAnalysis: '',
+  patterns: '',
+  insights: '',
+  summaryTable: '',
+  rawReport: ''
+};
+
 function App() {
   const [activeDataset, setActiveDataset] = useState<EEGData | null>(null);
-  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [signalAnalysis, setSignalAnalysis] = useState<SignalAnalysis | null>(null);
   const [pipelineState, setPipelineState] = useState<PipelineState>(initialPipelineState);
   const [processingTime, setProcessingTime] = useState<number | null>(null);
@@ -76,6 +85,10 @@ function App() {
   });
   const [userTargetQuery, setUserTargetQuery] = useState('');
   const [compareToCohort, setCompareToCohort] = useState(false);
+  const [aiResults, setAIResults] = useState<AIResults>({ ...emptyAIResults });
+  const [analysisComplete, setAnalysisComplete] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [notification, setNotification] = useState<string | null>(null);
 
   const sampleDatasets: SampleDataset[] = useMemo(() => {
     const samples = getSampleDatasets();
@@ -144,19 +157,38 @@ function App() {
       setSignalAnalysis(null);
       setPipelineState(initialPipelineState);
       setProcessingTime(null);
+      setAIResults({ ...emptyAIResults });
+      setAnalysisComplete(false);
       return;
     }
 
     computeSignalAnalysis(activeDataset);
+    setAnalysisComplete(false);
+    setAIResults({ ...emptyAIResults });
+    setDrawerVisible(false);
   }, [activeDataset, computeSignalAnalysis]);
+
+  useEffect(() => {
+    console.log('AI RESULTS:', aiResults);
+  }, [aiResults]);
 
   const handleAnalyze = async () => {
     if (!activeDataset) return;
 
     setIsAnalyzing(true);
+    setAiLoading(true);
+    setAnalysisComplete(false);
+    setAIResults({ ...emptyAIResults });
+    setDrawerVisible(true);
+
+    if (!apiKey) {
+      setNotification('No Anthropic API key detected. Enter a key in the sidebar to unlock live Claude analysis. Running in simulated mode.');
+    } else {
+      setNotification(null);
+    }
 
     try {
-      const { analysis, duration } = computeSignalAnalysis(activeDataset);
+      const { analysis } = computeSignalAnalysis(activeDataset);
       const signalQuality = determineSignalQuality(analysis.totalPower);
       const aiInsight = await runClaudeAnalysis({
         rawData: analysis.rawSignal,
@@ -175,21 +207,23 @@ function App() {
         signalQualityEstimate: signalQuality
       });
 
-      setAnalysisResult({ signalAnalysis: analysis, aiInsight, processingTime: duration });
-      setDrawerVisible(true);
+      setAIResults(aiInsight);
+      setAnalysisComplete(true);
     } catch (error) {
       console.error('Analysis error:', error);
       alert('An error occurred during analysis. Please try again.');
     } finally {
       setIsAnalyzing(false);
+      setAiLoading(false);
     }
   };
 
   const applyDataset = useCallback((dataset: EEGData, id: string) => {
     setActiveDataset(dataset);
     setSelectedDatasetId(id);
-    setAnalysisResult(null);
     setDrawerVisible(false);
+    setAIResults({ ...emptyAIResults });
+    setAnalysisComplete(false);
   }, []);
 
   const handleLoadSample = (sample: SampleDataset) => {
@@ -206,8 +240,9 @@ function App() {
     if (!id) {
       setSelectedDatasetId(null);
       setActiveDataset(null);
-      setAnalysisResult(null);
       setDrawerVisible(false);
+      setAIResults({ ...emptyAIResults });
+      setAnalysisComplete(false);
       return;
     }
 
@@ -237,8 +272,9 @@ function App() {
           previous.artifactRejection !== next.artifactRejection;
 
         if (changed) {
-          setAnalysisResult(null);
           setDrawerVisible(false);
+          setAIResults({ ...emptyAIResults });
+          setAnalysisComplete(false);
           return next;
         }
 
@@ -253,7 +289,7 @@ function App() {
   const signalQualityLabel = signalAnalysis ? determineSignalQuality(signalAnalysis.totalPower) : null;
   const fftSampleCount = pipelineState.fftResults ? pipelineState.fftResults.frequencies.length : null;
   const datasetDuration = activeDataset ? activeDataset.duration : null;
-  const isDrawerOpen = Boolean(analysisResult && analysisResult.aiInsight && isDrawerVisible);
+  const isDrawerOpen = Boolean(isDrawerVisible);
   const canAnalyze = Boolean(activeDataset);
 
   return (
@@ -263,6 +299,11 @@ function App() {
           isDrawerOpen ? 'scale-[0.99]' : 'scale-100'
         }`}
       >
+        {notification && (
+          <div className="mb-4 rounded-xl border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-100 shadow-[0_1px_8px_rgba(255,193,7,0.2)]">
+            {notification}
+          </div>
+        )}
         <TopBar
           title="EEG Signal Analyzer"
           subtitle="Neuroscience workspace"
@@ -282,7 +323,7 @@ function App() {
 
         <main className="flex flex-1 flex-col">
           <div className="flex h-full flex-col gap-6 xl:flex-row">
-            <section className="flex min-h-[420px] flex-1 flex-col overflow-hidden">
+            <section className="flex min-h-[420px] flex-1 flex-col">
               <TabsPane tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab}>
                 <PlotArea activeTab={activeTab} eegData={activeDataset} signalAnalysis={signalAnalysis} />
               </TabsPane>
@@ -320,9 +361,11 @@ function App() {
       </div>
 
       <AIDrawer
-        analysisResult={analysisResult}
-        isVisible={isDrawerVisible}
+        aiResults={aiResults}
+        isOpen={isDrawerVisible}
         onClose={() => setDrawerVisible(false)}
+        aiLoading={aiLoading}
+        analysisComplete={analysisComplete}
         signalQualityLabel={signalQualityLabel}
       />
     </div>

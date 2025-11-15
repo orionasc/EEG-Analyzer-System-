@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import type { AIInsight, AISummaryTable, FrequencyBands } from '../types';
+import type { AIInsight, AIResults, AISummaryTable, FrequencyBands } from '../types';
 
 type FFTResults = {
   frequencies: number[];
@@ -421,14 +421,55 @@ function createSimulatedReport(params: RunClaudeAnalysisParams, summary: PromptS
   return `1. Primary Brain State Classification\nState: ${summary.brainStateEstimate} (Confidence: ${summary.confidence}).\nDominant spectral energy favours ${summary.brainStateEstimate.toLowerCase()}.\n\n2. Deep Analysis\n- ${summary.spectralNotes}.\n- ${summary.signalQuality}.\n- ${cohortText}\n- Cross-channel coherence appears stable with symmetrical distribution.\n\n3. Pattern Detections\n${patternItems.map((item) => `- ${item}`).join('\n')}\n\n4. Optional Mode: Targeted Analysis\n${targeted}\n\n5. Actionable Insights\n- Maintain current state monitoring to track shifts in ${summary.brainStateEstimate.toLowerCase()}.\n- Consider short breaks to rebalance beta/gamma engagement.\n- Sustained theta elevations may indicate fatigue onset.\n\nAI Artifact Detector\n${artifactItems.map((item) => `- ${item}`).join('\n')}\n\n6. Summary Table\n| Band | Power (μV²) | Range |\n| --- | --- | --- |\n${rows.map((row) => `| ${row[0]} | ${row[1]} | ${row[2]} |`).join('\n')}\n\nCohort comparison notes: ${cohortText}`;
 }
 
-export async function runClaudeAnalysis(params: RunClaudeAnalysisParams): Promise<AIInsight> {
+function formatSummaryTableString(table: AISummaryTable | null): string {
+  if (!table) return '';
+
+  const headerRow = `| ${table.headers.join(' | ')} |`;
+  const separator = `| ${table.headers.map(() => '---').join(' | ')} |`;
+  const bodyRows = table.rows.map((row) => `| ${row.join(' | ')} |`).join('\n');
+
+  return [headerRow, separator, bodyRows].filter(Boolean).join('\n');
+}
+
+function insightToAIResults(insight: AIInsight): AIResults {
+  const keySegments = [
+    insight.brainState.confidence ? `Confidence: ${insight.brainState.confidence}` : '',
+    insight.brainState.description ?? '',
+    insight.cohortComparison ?? '',
+    insight.targetedAnalysis ?? ''
+  ].filter(Boolean);
+
+  const patternString = insight.patternsFound.length
+    ? insight.patternsFound.map((item) => `• ${item}`).join('\n')
+    : '';
+  const insightsString = insight.insights.length ? insight.insights.map((item) => `• ${item}`).join('\n') : '';
+
+  return {
+    brainState: insight.brainState.classification ?? '',
+    keyFindings: keySegments.join('\n'),
+    deepAnalysis: insight.deepAnalysis ?? '',
+    patterns: patternString,
+    insights: insightsString,
+    summaryTable: formatSummaryTableString(insight.summaryTable),
+    rawReport: insight.rawReport,
+    targetedAnalysis: insight.targetedAnalysis,
+    artifactFindings: insight.artifactFindings,
+    cohortComparison: insight.cohortComparison,
+    summaryTableData: insight.summaryTable,
+    confidence: insight.brainState.confidence,
+    description: insight.brainState.description
+  };
+}
+
+export async function runClaudeAnalysis(params: RunClaudeAnalysisParams): Promise<AIResults> {
   const summary = buildPromptSummary(params);
   const prompt = buildPrompt(summary, params);
   const apiKey = params.apiKey;
 
   if (!apiKey) {
     const simulated = createSimulatedReport(params, summary);
-    return parseClaudeResponse(simulated, summary);
+    const parsed = parseClaudeResponse(simulated, summary);
+    return insightToAIResults(parsed);
   }
 
   try {
@@ -449,13 +490,16 @@ export async function runClaudeAnalysis(params: RunClaudeAnalysisParams): Promis
     const report = text && 'text' in text ? text.text : '';
     if (!report) {
       const simulated = createSimulatedReport(params, summary);
-      return parseClaudeResponse(simulated, summary);
+      const parsed = parseClaudeResponse(simulated, summary);
+      return insightToAIResults(parsed);
     }
-    return parseClaudeResponse(report, summary);
+    const parsed = parseClaudeResponse(report, summary);
+    return insightToAIResults(parsed);
   } catch (error) {
     console.error('Claude analysis failed', error);
     const fallbackReport = createSimulatedReport(params, summary);
-    return parseClaudeResponse(fallbackReport, summary);
+    const parsed = parseClaudeResponse(fallbackReport, summary);
+    return insightToAIResults(parsed);
   }
 }
 

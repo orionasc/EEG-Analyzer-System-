@@ -51,6 +51,22 @@ export interface AISummaryTable {
   rows: string[][];
 }
 
+export interface AIResults {
+  brainState: string;
+  keyFindings: string;
+  deepAnalysis: string;
+  patterns: string;
+  insights: string;
+  summaryTable: string;
+  rawReport?: string;
+  targetedAnalysis?: string;
+  artifactFindings?: string[];
+  cohortComparison?: string;
+  summaryTableData?: AISummaryTable | null;
+  confidence?: string;
+  description?: string;
+}
+
 export interface AIInsight {
   brainState: {
     classification: string;
