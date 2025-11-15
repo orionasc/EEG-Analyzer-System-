@@ -153,7 +153,7 @@ function App() {
         artifactIndices: analysis.artifactIndices
       });
       setProcessingTime(duration);
-      return { analysis, duration };
+      return analysis;
     },
     [filterSettings.bandpassEnabled, filterSettings.artifactRejection]
   );
@@ -194,7 +194,7 @@ function App() {
     }
 
     try {
-      const { analysis } = computeSignalAnalysis(activeDataset);
+      const analysis = computeSignalAnalysis(activeDataset);
       const signalQuality = determineSignalQuality(analysis.totalPower);
       const aiResultsResponse = await runClaudeAnalysis({
         rawData: analysis.rawSignal,
@@ -372,7 +372,6 @@ function App() {
         onClose={() => setDrawerVisible(false)}
         aiLoading={aiLoading}
         analysisComplete={analysisComplete}
-        signalQualityLabel={signalQualityLabel}
       />
     </div>
   );
