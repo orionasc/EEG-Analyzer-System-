@@ -24,7 +24,7 @@ const SummaryTable = ({
   tableMarkdown: string;
   data: AIResults['summaryTableData'];
 }) => {
-  if (data && data.headers.length && data.rows.length) {
+  if (data && data.headers?.length && data.rows?.length) {
     return (
       <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5">
         <table className="min-w-full divide-y divide-white/10 text-left text-xs text-slate-100">
@@ -62,7 +62,7 @@ const SummaryTable = ({
   }
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-slate-300">No summary table available.</div>
+    <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-slate-300">Awaiting analysis...</div>
   );
 };
 
@@ -80,17 +80,13 @@ export const AIDrawer = ({
   const insightItems = useMemo(() => splitLines(aiResults.insights), [aiResults.insights]);
   const keyFindingLines = useMemo(() => splitLines(aiResults.keyFindings), [aiResults.keyFindings]);
 
-  if (!body) {
+  if (!body || !isOpen) {
     return null;
   }
 
   return createPortal(
     <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[9999] flex justify-center">
-      <div
-        className={`pointer-events-auto w-full max-w-6xl transform px-4 pb-6 transition-transform duration-300 ease-out sm:px-6 ${
-          isOpen ? 'translate-y-0' : 'translate-y-full'
-        } ${isOpen ? 'opacity-100' : 'opacity-0'}`}
-      >
+      <div className="pointer-events-auto w-full max-w-6xl transform px-4 pb-6 transition-transform duration-300 ease-out sm:px-6">
         <section className="rounded-3xl border border-white/10 bg-slate-900/80 p-6 text-slate-100 shadow-2xl backdrop-blur-2xl">
           <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-white/30" />
           <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
