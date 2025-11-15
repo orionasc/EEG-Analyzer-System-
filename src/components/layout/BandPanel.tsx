@@ -21,7 +21,7 @@ export const BandPanel: React.FC<BandPanelProps> = ({ frequencyBands, dominantFr
       ) : (
         <div className="space-y-4">
           {dominantBand && (
-            <div className="rounded-2xl border border-[rgba(105,217,255,0.35)] bg-[rgba(19,16,28,0.78)] px-4 py-4 text-xs text-[rgba(236,229,220,0.82)] shadow-[0_0_28px_rgba(105,217,255,0.18)]">
+            <div className="rounded-2xl border border-[rgba(105,217,255,0.35)] bg-[rgba(19,16,28,0.78)] px-[var(--cl-h-gutter)] py-4 text-xs text-[rgba(236,229,220,0.82)] shadow-[0_0_28px_rgba(105,217,255,0.18)]">
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[rgba(236,229,220,0.55)]">Band emphasis</p>
               <p className="mt-1 text-sm font-medium text-[rgba(249,245,236,0.95)]">
                 {dominantBand.name} band dominates ({dominantBand.range[0]}–{dominantBand.range[1]} Hz)

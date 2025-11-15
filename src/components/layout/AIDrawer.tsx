@@ -65,8 +65,8 @@ export const AIDrawer = ({
         isOpen ? 'translate-y-0' : 'translate-y-full'
       }`}
     >
-      <div className="pointer-events-auto w-full max-w-4xl px-4 pb-6 sm:px-6">
-        <section className="rounded-3xl border border-[rgba(198,188,255,0.24)] bg-[rgba(13,10,22,0.92)] p-6 text-[rgba(236,229,220,0.88)] shadow-[0_40px_80px_rgba(7,4,15,0.75)] backdrop-blur-2xl">
+      <div className="pointer-events-auto w-full max-w-4xl px-[var(--cl-h-gutter)] pb-6">
+        <section className="rounded-3xl border border-[rgba(198,188,255,0.24)] bg-[rgba(13,10,22,0.92)] px-[var(--cl-h-gutter)] py-6 text-[rgba(236,229,220,0.88)] shadow-[0_40px_80px_rgba(7,4,15,0.75)] backdrop-blur-2xl">
           <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-[rgba(236,229,220,0.18)]" />
           <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>

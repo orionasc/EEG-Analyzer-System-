@@ -69,7 +69,7 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
       <button
         type="button"
         onClick={toggle}
-        className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left text-[rgba(249,245,236,0.92)]"
+        className="flex w-full items-center justify-between gap-3 px-[var(--cl-h-gutter)] py-4 text-left text-[rgba(249,245,236,0.92)]"
         aria-expanded={isOpen}
       >
         <span className="text-sm font-semibold tracking-[0.08em] uppercase text-[rgba(236,229,220,0.76)]">{title}</span>
@@ -85,7 +85,7 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
         className={`overflow-hidden transition-[max-height] duration-[400ms] ease-in-out ${contentClassName ?? ''}`.trim()}
         style={{ maxHeight }}
       >
-        <div className="px-5 pb-5 text-[rgba(236,229,220,0.78)]">{children}</div>
+        <div className="px-[var(--cl-h-gutter)] pb-5 text-[rgba(236,229,220,0.78)]">{children}</div>
       </div>
     </section>
   );

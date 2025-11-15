@@ -73,7 +73,7 @@ export const PowerSpectrumPlot: React.FC<PowerSpectrumPlotProps> = ({ analysis }
   }));
 
   return (
-    <div className="rounded-2xl border border-[rgba(198,188,255,0.18)] bg-[rgba(17,13,28,0.78)] p-5 shadow-[0_24px_48px_rgba(8,4,18,0.45)]">
+    <div className="rounded-2xl border border-[rgba(198,188,255,0.18)] bg-[rgba(17,13,28,0.78)] px-[var(--cl-h-gutter)] py-5 shadow-[0_24px_48px_rgba(8,4,18,0.45)]">
       <div className="mb-3 flex items-center justify-between text-xs text-[rgba(214,205,196,0.7)]">
         <span>Real-time spectral energy profile</span>
         <span className="inline-flex items-center gap-2 rounded-full border border-[rgba(105,217,255,0.3)] bg-[rgba(105,217,255,0.12)] px-2.5 py-1 text-xs text-[rgba(105,217,255,0.9)]">

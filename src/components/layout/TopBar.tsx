@@ -44,7 +44,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   return (
     <header className="cl-slab cl-veil relative overflow-hidden">
       <div className="cl-slab-edge" />
-      <div className="flex flex-col gap-6 p-6 lg:flex-row lg:items-start lg:gap-10">
+      <div className="flex flex-col gap-6 px-[var(--cl-h-gutter)] py-6 lg:flex-row lg:items-start lg:gap-10">
         <div className="flex min-w-[260px] flex-col gap-4">
           <div className="space-y-1">
             <p className="text-xs uppercase tracking-[0.35em] text-[rgba(236,229,220,0.55)]">{subtitle}</p>
